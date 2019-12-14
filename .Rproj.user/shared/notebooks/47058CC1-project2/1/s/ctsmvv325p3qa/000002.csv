@@ -1,0 +1,2 @@
+"0","#null distribution"
+"0","visits %>% ggplot(aes(faminc,fill=privins))+geom_histogram(bins=6.5)+facet_wrap(~privins) + xlab(""Family Income ($10,000)"") + ggtitle(""Private Insurance for Family Incomes"")"

@@ -1,0 +1,4 @@
+"0",""
+"0",""
+"0","#summary 9 group/arrange by song distinct themes/how many personal, political, etc. by sentiment"
+"0","joined %>% group_by(theme,sentiment) %>% summarize(n=n()) %>% spread(theme,n, fill=0)"

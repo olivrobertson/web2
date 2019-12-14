@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Olivia Robertson" />
+    <meta name="description" content="Describe your website">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>Project One: 2016 Candidate Endorsements and Song References</title>
+    <meta name="generator" content="Hugo 0.61.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/blog/">BLOG</a></li>
+        
+        <li><a href="/about/">ABOUT</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project1/">Project One: 2016 Candidate Endorsements and Song References</a></strong>
+          </h3>
+        </div>
+        <div class="blog-title">
+          <h4>
+          January 1, 0001
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<pre class="r"><code>library(tidyr)
+library(ggplot2)
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The endorsements dataset is from <a href="https://projects.fivethirtyeight.com/2016-endorsement-primary/" class="uri">https://projects.fivethirtyeight.com/2016-endorsement-primary/</a> and accounts for all of the endorsements of the 2016 primary election candidates based on a points system. Variables include the candidate, date, endorser, endorser’s position, and points the endorsement earned the candidate. The hiphop data set is from <a href="https://datahub.io/five-thirty-eight/hip-hop-candidate-lyrics#resource-genius_hip_hop_lyrics" class="uri">https://datahub.io/five-thirty-eight/hip-hop-candidate-lyrics#resource-genius_hip_hop_lyrics</a> that compiles hip hop songs that reference the 2016 primary candidates. Variables include candidate, song, artist, sentiment, theme, album release date, the line of lyrics referencing the candidate, and url to lyrics.</p>
+<p>These datasets interested me because I wanted to see if being referenced in a hip hop song had any correlation with endorsements for the 2016 primaries. The 2016 election was the first political event I was old enough to participate in and I remember it well. I expect to find that the more references in hiphop songs a candidate has, the more endorsements they will have. Likely if they are a big name, popular person they will be well established.</p>
+</div>
+<div id="tidying" class="section level2">
+<h2>Tidying</h2>
+<pre class="r"><code>endorsement &lt;- read.csv(&quot;endorsement.csv&quot;)
+endorsement %&gt;% glimpse()</code></pre>
+<pre><code>## Observations: 447
+## Variables: 5
+## $ ï..Candidate &lt;fct&gt; Hillary Clinton, Hillary Clinton, Hillary Clinton...
+## $ Date         &lt;fct&gt; 6/7/2016, 5/31/2019, 5/29/2019, 5/25/2019, 5/21/2...
+## $ Endorser     &lt;fct&gt; Nancy Pelosinew, Jerry Brownnew, Norma Torresnew,...
+## $ Position     &lt;fct&gt; Rep. (D-Calif.), Gov. (D-Calif.), Rep. (D-Calif.)...
+## $ Pts.         &lt;int&gt; 1, 10, 1, 5, 1, 1, 10, 1, 1, 1, 1, 1, 10, 1, 1, 1...</code></pre>
+<pre class="r"><code>hiphop &lt;- read.csv(&quot;hiphop.csv&quot;)
+hiphop %&gt;% glimpse()</code></pre>
+<pre><code>## Observations: 377
+## Variables: 9
+## $ idz                &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, ...
+## $ candidate          &lt;fct&gt; Mike Huckabee, Mike Huckabee, Jeb Bush, Jeb...
+## $ song               &lt;fct&gt; none shall pass, wellstone, awe, the truth,...
+## $ artist             &lt;fct&gt; aesop rock, soul khan, dez &amp; nobs, diabolic...
+## $ sentiment          &lt;fct&gt; neutral, negative, neutral, negative, negat...
+## $ theme              &lt;fct&gt; NA, NA, NA, political, personal, political,...
+## $ album_release_date &lt;int&gt; 2011, 2012, 2006, 2006, 2007, 2012, 2001, 2...
+## $ line               &lt;fct&gt; &quot;wither by the watering hole, border patrol...
+## $ url                &lt;fct&gt; http://genius.com/aesop-rock-none-shall-pas...</code></pre>
+<pre class="r"><code>colnames(endorsement)[1] &lt;- &quot;Candidate&quot;
+endorsement %&gt;% na.omit() %&gt;% glimpse()</code></pre>
+<pre><code>## Observations: 447
+## Variables: 5
+## $ Candidate &lt;fct&gt; Hillary Clinton, Hillary Clinton, Hillary Clinton, H...
+## $ Date      &lt;fct&gt; 6/7/2016, 5/31/2019, 5/29/2019, 5/25/2019, 5/21/2019...
+## $ Endorser  &lt;fct&gt; Nancy Pelosinew, Jerry Brownnew, Norma Torresnew, Ro...
+## $ Position  &lt;fct&gt; Rep. (D-Calif.), Gov. (D-Calif.), Rep. (D-Calif.), S...
+## $ Pts.      &lt;int&gt; 1, 10, 1, 5, 1, 1, 10, 1, 1, 1, 1, 1, 10, 1, 1, 1, 1...</code></pre>
+<pre class="r"><code>hh &lt;- hiphop %&gt;% na.omit() %&gt;% glimpse()</code></pre>
+<pre><code>## Observations: 298
+## Variables: 9
+## $ idz                &lt;int&gt; 4, 5, 6, 8, 9, 10, 11, 15, 18, 19, 21, 22, ...
+## $ candidate          &lt;fct&gt; Jeb Bush, Jeb Bush, Jeb Bush, Jeb Bush, Jeb...
+## $ song               &lt;fct&gt; the truth, money man, hidden agenda, bush s...
+## $ artist             &lt;fct&gt; diabolic, gorilla zoe, k-rino, macklemore, ...
+## $ sentiment          &lt;fct&gt; negative, negative, negative, negative, neg...
+## $ theme              &lt;fct&gt; political, personal, political, political, ...
+## $ album_release_date &lt;int&gt; 2006, 2007, 2012, 2005, 2013, 2005, 2005, 2...
+## $ line               &lt;fct&gt; &quot;what you heard before ain&#39;t as big of a le...
+## $ url                &lt;fct&gt; http://genius.com/diabolic-the-truth-lyrics...</code></pre>
+<pre class="r"><code>#already tidy so made untidy then pivoted from wide to long
+endorsement %&gt;% pivot_wider(names_from=&quot;Candidate&quot;, values_from=&quot;Date&quot;) %&gt;% glimpse()</code></pre>
+<pre><code>## Observations: 407
+## Variables: 21
+## $ Endorser          &lt;fct&gt; Nancy Pelosinew, Jerry Brownnew, Norma Torre...
+## $ Position          &lt;fct&gt; Rep. (D-Calif.), Gov. (D-Calif.), Rep. (D-Ca...
+## $ Pts.              &lt;int&gt; 1, 10, 1, 5, 1, 1, 10, 1, 1, 1, 1, 1, 10, 1,...
+## $ `Hillary Clinton` &lt;fct&gt; 6/7/2016, 5/31/2019, 5/29/2019, 5/25/2019, 5...
+## $ `Bernie Sanders`  &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Joe Biden`       &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Martin O&#39;Malley` &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Donald Trump`    &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Marco Rubio`     &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Ted Cruz`        &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `John Kasich`     &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Chris Christie`  &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Jeb Bush`        &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Mike Huckabee`   &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Rand Paul`       &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Lindsey Graham`  &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Carly Fiorina`   &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Ben Carson`      &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Scott Walker`    &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Rick Perry`      &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
+## $ `Rick Santorum`   &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...</code></pre>
+<pre class="r"><code>end &lt;- endorsement %&gt;% pivot_wider(names_from=&quot;Candidate&quot;, values_from=&quot;Date&quot;) %&gt;%
+  pivot_longer(c(&quot;Hillary Clinton&quot;, &quot;Bernie Sanders&quot;, &quot;Joe Biden&quot;, 
+                 &quot;Martin O&#39;Malley&quot;, &quot;Donald Trump&quot;, &quot;Marco Rubio&quot;,
+                 &quot;Ted Cruz&quot;, &quot;John Kasich&quot;, &quot;Chris Christie&quot;, &quot;Jeb Bush&quot;,
+                 &quot;Mike Huckabee&quot;, &quot;Rand Paul&quot;, &quot;Lindsey Graham&quot;, 
+                 &quot;Carly Fiorina&quot;, &quot;Ben Carson&quot;, &quot;Scott Walker&quot;, 
+                 &quot;Rick Perry&quot;, &quot;Rick Santorum&quot;), names_to=&quot;Candidate&quot;, 
+               values_to=&quot;Date&quot;) %&gt;% na.omit() %&gt;% glimpse()</code></pre>
+<pre><code>## Observations: 447
+## Variables: 5
+## $ Endorser  &lt;fct&gt; Nancy Pelosinew, Jerry Brownnew, Norma Torresnew, Ro...
+## $ Position  &lt;fct&gt; Rep. (D-Calif.), Gov. (D-Calif.), Rep. (D-Calif.), S...
+## $ Pts.      &lt;int&gt; 1, 10, 1, 5, 1, 1, 10, 1, 1, 1, 1, 1, 10, 1, 1, 1, 1...
+## $ Candidate &lt;chr&gt; &quot;Hillary Clinton&quot;, &quot;Hillary Clinton&quot;, &quot;Hillary Clint...
+## $ Date      &lt;fct&gt; 6/7/2016, 5/31/2019, 5/29/2019, 5/25/2019, 5/21/2019...</code></pre>
+<p>NA’s were removed from the hiphop dataset. Under the theme’s variables there were about 79 rows that had a NA theme. Since these datasets were alreaady tidy, I untidied the endorsement dataset. I made it so that each candidate had their own column, with the date of endorsement as the values. I then retidied this from wide to long so that each date of endorsement had a row.</p>
+</div>
+<div id="joiningmerging" class="section level2">
+<h2>Joining/Merging</h2>
+<pre class="r"><code>#creating number of endorsements variable
+comb &lt;- end %&gt;% group_by(Candidate) %&gt;% summarize(Endorsements=n_distinct(Endorser))%&gt;%
+  full_join(hh, by=c(&quot;Candidate&quot;=&quot;candidate&quot;)) %&gt;%
+  distinct() %&gt;% na.omit() %&gt;% glimpse()</code></pre>
+<pre><code>## Warning: Column `Candidate`/`candidate` joining character vector and
+## factor, coercing into character vector</code></pre>
+<pre><code>## Observations: 296
+## Variables: 10
+## $ Candidate          &lt;chr&gt; &quot;Donald Trump&quot;, &quot;Donald Trump&quot;, &quot;Donald Tru...
+## $ Endorsements       &lt;int&gt; 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,...
+## $ idz                &lt;int&gt; 112, 114, 115, 116, 117, 118, 119, 120, 121...
+## $ song               &lt;fct&gt; protect ya neck ii the zoo, 50/banks, skill...
+## $ artist             &lt;fct&gt; 12 o&#39;clock - brooklyn zu, 50 cent, nice, 69...
+## $ sentiment          &lt;fct&gt; positive, positive, positive, positive, pos...
+## $ theme              &lt;fct&gt; money, money, money, money, money, money, m...
+## $ album_release_date &lt;int&gt; 1995, 2002, 1990, 1998, 2010, 1991, 1992, 1...
+## $ line               &lt;fct&gt; &quot;given the power punch, soon to be paid lik...
+## $ url                &lt;fct&gt; http://genius.com/ol-dirty-bastard-protect-...</code></pre>
+<pre class="r"><code>#getting rid of unnecessary columns
+comb2 &lt;- comb %&gt;% select(-idz,-url,-line) %&gt;% glimpse()</code></pre>
+<pre><code>## Observations: 296
+## Variables: 7
+## $ Candidate          &lt;chr&gt; &quot;Donald Trump&quot;, &quot;Donald Trump&quot;, &quot;Donald Tru...
+## $ Endorsements       &lt;int&gt; 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,...
+## $ song               &lt;fct&gt; protect ya neck ii the zoo, 50/banks, skill...
+## $ artist             &lt;fct&gt; 12 o&#39;clock - brooklyn zu, 50 cent, nice, 69...
+## $ sentiment          &lt;fct&gt; positive, positive, positive, positive, pos...
+## $ theme              &lt;fct&gt; money, money, money, money, money, money, m...
+## $ album_release_date &lt;int&gt; 1995, 2002, 1990, 1998, 2010, 1991, 1992, 1...</code></pre>
+<pre class="r"><code>#creating number of song references variable
+joined &lt;- hh %&gt;% group_by(candidate) %&gt;% summarize(song_references=n_distinct(song))%&gt;%
+  full_join(comb2, by=c(&quot;candidate&quot;=&quot;Candidate&quot;)) %&gt;% 
+  na.omit() %&gt;% glimpse()</code></pre>
+<pre><code>## Warning: Column `candidate`/`Candidate` joining factor and character
+## vector, coercing into character vector</code></pre>
+<pre><code>## Observations: 296
+## Variables: 8
+## $ candidate          &lt;chr&gt; &quot;Donald Trump&quot;, &quot;Donald Trump&quot;, &quot;Donald Tru...
+## $ song_references    &lt;int&gt; 228, 228, 228, 228, 228, 228, 228, 228, 228...
+## $ Endorsements       &lt;int&gt; 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,...
+## $ song               &lt;fct&gt; protect ya neck ii the zoo, 50/banks, skill...
+## $ artist             &lt;fct&gt; 12 o&#39;clock - brooklyn zu, 50 cent, nice, 69...
+## $ sentiment          &lt;fct&gt; positive, positive, positive, positive, pos...
+## $ theme              &lt;fct&gt; money, money, money, money, money, money, m...
+## $ album_release_date &lt;int&gt; 1995, 2002, 1990, 1998, 2010, 1991, 1992, 1...</code></pre>
+<p>First a new column was created that counted the number of endorseements each candidate had in 2016. A full join was done so that variables from both datasets could be compared. Unnecessaary columns idz, url to the song lyrics, and line of lyrics were dropped for the analysis. Then a variable for number of song references by each candidate was created.</p>
+<p>##Wrangling</p>
+<pre class="r"><code>#summary 1: mean number of song references
+joined %&gt;% summarize(mean_song_references=mean(song_references))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   mean_song_references
+##                  &lt;dbl&gt;
+## 1                 189.</code></pre>
+<pre class="r"><code>#summary 2: # of songs referencing Donald Trump
+joined %&gt;% filter(candidate==&quot;Donald Trump&quot;) %&gt;% group_by(candidate) %&gt;%
+  summarize(donald_song_references=n_distinct(song)) %&gt;% 
+  glimpse()</code></pre>
+<pre><code>## Observations: 1
+## Variables: 2
+## $ candidate              &lt;chr&gt; &quot;Donald Trump&quot;
+## $ donald_song_references &lt;int&gt; 228</code></pre>
+<pre class="r"><code>#summary 3 mean album release date
+joined %&gt;% na.omit() %&gt;% summarize(mean_album_date=mean(album_release_date))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   mean_album_date
+##             &lt;dbl&gt;
+## 1           2008.</code></pre>
+<pre class="r"><code>#summary 4 group by candidate, minimum endorsements
+joined %&gt;% group_by(candidate) %&gt;% summarize(least_endorsements=min(Endorsements)) %&gt;%
+  arrange(least_endorsements)</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   candidate       least_endorsements
+##   &lt;chr&gt;                        &lt;int&gt;
+## 1 Donald Trump                    15
+## 2 Jeb Bush                        31
+## 3 Ted Cruz                        44
+## 4 Hillary Clinton                225</code></pre>
+<pre class="r"><code>#summary 5 candidate referencing songs in 2015 and 2016
+joined %&gt;% select(candidate, song, album_release_date) %&gt;% 
+  arrange(album_release_date) %&gt;% 
+  filter(album_release_date==2015 | album_release_date==2016) </code></pre>
+<pre><code>## # A tibble: 50 x 3
+##    candidate    song                    album_release_date
+##    &lt;chr&gt;        &lt;fct&gt;                                &lt;int&gt;
+##  1 Donald Trump planewalker                           2015
+##  2 Donald Trump neighborhood scientists               2015
+##  3 Donald Trump up like trump                         2015
+##  4 Donald Trump pnt                                   2015
+##  5 Donald Trump she wanna fuck                        2015
+##  6 Donald Trump dope spot                             2015
+##  7 Donald Trump florida state                         2015
+##  8 Donald Trump have a nice day                       2015
+##  9 Donald Trump flavas back                           2015
+## 10 Donald Trump 10 times                              2015
+## # ... with 40 more rows</code></pre>
+<pre class="r"><code>joined %&gt;% select(candidate, song, album_release_date) %&gt;% 
+  arrange(album_release_date) %&gt;%
+  filter(album_release_date==2015 | album_release_date==2016) %&gt;%
+  group_by(album_release_date) %&gt;%
+  summarize(count=n()) </code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   album_release_date count
+##                &lt;int&gt; &lt;int&gt;
+## 1               2015    30
+## 2               2016    20</code></pre>
+<pre class="r"><code>#summary 6 number of times artists referenced candidates
+joined %&gt;% select(artist, candidate) %&gt;% group_by(artist) %&gt;%
+  summarize(artist_cand_ref=n()) %&gt;% arrange(artist) %&gt;% 
+  glimpse()</code></pre>
+<pre><code>## Observations: 216
+## Variables: 2
+## $ artist          &lt;fct&gt; 12 o&#39;clock - brooklyn zu, 2 chainz, 50 cent, 6...
+## $ artist_cand_ref &lt;int&gt; 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1...</code></pre>
+<pre class="r"><code>#summary 7 song references to endorsements proportion
+joined %&gt;% mutate(proportion=song_references/Endorsements) %&gt;%
+  summarize(proportion_sd=sd(proportion))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   proportion_sd
+##           &lt;dbl&gt;
+## 1          6.23</code></pre>
+<pre class="r"><code>#summary 8 distinct sentiments/how many positive, neutral, negative 
+joined %&gt;% group_by(candidate,sentiment) %&gt;% summarize(n=n()) %&gt;% 
+  spread(sentiment,n, fill=0)</code></pre>
+<pre><code>## # A tibble: 4 x 4
+## # Groups:   candidate [4]
+##   candidate       negative neutral positive
+##   &lt;chr&gt;              &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+## 1 Donald Trump          24      51      155
+## 2 Hillary Clinton       22      25       11
+## 3 Jeb Bush               5       2        0
+## 4 Ted Cruz               1       0        0</code></pre>
+<pre class="r"><code>#summary 9 group/arrange by song distinct themes/how many personal, political, etc. by sentiment
+joined %&gt;% group_by(theme,sentiment) %&gt;% summarize(n=n()) %&gt;% spread(theme,n, fill=0)</code></pre>
+<pre><code>## # A tibble: 3 x 8
+##   sentiment hotel money personal political power sexual `the apprentice`
+##   &lt;fct&gt;     &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;            &lt;dbl&gt;
+## 1 negative      0     1       13        36     0      2                0
+## 2 neutral       7    15       25        10     1      2               18
+## 3 positive     61    91        9         4     1      0                0</code></pre>
+<pre class="r"><code>#summary 10 correlation number of songs per candidate and number of endorsements per candidate
+joined %&gt;% select_if(is.numeric)%&gt;%na.omit%&gt;%cor</code></pre>
+<pre><code>##                    song_references Endorsements album_release_date
+## song_references         1.00000000  -0.89030810         0.07930277
+## Endorsements           -0.89030810   1.00000000        -0.09045409
+## album_release_date      0.07930277  -0.09045409         1.00000000</code></pre>
+<p>Basic summary statistics were taken from the joined data to find the mean number of song references for a candidate, the number of songs referencing Donald Trump who went on to win the 2016 election, the mean album release date, which actually is 8 years before the election took place, and finally the lowest number of candidate endorsements. Primaries began in 2015 when endorsements first were being made so a count of songs released in 2015 and 2016 were taken in order to find if there was any effect with endorsements.</p>
+<p>Then a count of how many times each artist referenced a candidate was made. Jay Z referenced 2016 candidates in 4 songs. A standard deviation of the proportion of song references to endorsements for candidates was caluclated to be 6.233. Out of song references, a spread was created by each candidate for the sentiment of the song they were referenced in which includes the options of negative, neutral, and positive. To follow that statistic, the theme of each sentiment was spread to cover hotel, money, personal, political, power, sexual, and The Apprentice. Finally a correlation of numeric variables was calculated. Unexpectedly, there is a negative correlation between endorsement and song references while album release date has no correlation to endorsements.</p>
+</div>
+<div id="visualizing" class="section level2">
+<h2>Visualizing</h2>
+<pre class="r"><code>#plot 1: candidate, sentiment
+ggplot(joined, aes(candidate, Endorsements)) + geom_bar(stat=&quot;summary&quot;, fun.y=&quot;mean&quot;, fill=&quot;#faf5c3&quot;) + 
+  geom_point(aes(candidate, song_references, color=song_references)) +
+  scale_color_gradient(low=&quot;blue&quot;, high=&quot;orange&quot;) + 
+  ggtitle(&#39;Candidate Song References &amp; Endorsements&#39;) +
+  xlab(&#39;Candidate&#39;) + ylab(&#39;Number Of Endorsements&#39;) + 
+  scale_y_continuous(lim=c(0,300),
+                     breaks=c(0,25,50,75,100,125,150,175,200,225,250,275,300))</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>#plot 2: candidate, theme, sentiment, album release date
+ggplot(joined, aes(sentiment, album_release_date)) + geom_point(aes(color=theme), size=.5) +
+  facet_wrap(~candidate) + theme_dark() + 
+  ggtitle(&#39;Themes &amp; Sentiments of Candidates Referenced In Songs by Year&#39;)+
+  xlab(&#39;Sentiment&#39;) + ylab(&#39;Album Release Date&#39;) + 
+  scale_y_continuous(lim=c(1989,2016),
+                     breaks=c(1989,1991,1993,1995,1997,1999,2001,
+                              2003,2005,2007,2009,2011,2013, 2015))</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-5-2.png" width="672" />
+The first plot demonstrates how many endorsements and song references each candidate had up to the 2016 election.</p>
+<p>The second plot compares the sentiments and themes of candidates referenced in songs by the year the album was released.</p>
+</div>
+<div id="dimensionality-reduction" class="section level2">
+<h2>Dimensionality Reduction</h2>
+<pre class="r"><code>#covariance
+joined%&gt;%select_if(is.numeric)%&gt;%cov</code></pre>
+<pre><code>##                    song_references Endorsements album_release_date
+## song_references         5465.60215   -5483.6263           39.74114
+## Endorsements           -5483.62627    6940.9199          -51.08220
+## album_release_date        39.74114     -51.0822           45.94792</code></pre>
+<pre class="r"><code>#scale
+joined_num&lt;-joined%&gt;%select_if(is.numeric)%&gt;%scale %&gt;% glimpse()</code></pre>
+<pre><code>##  num [1:296, 1:3] 0.532 0.532 0.532 0.532 0.532 ...
+##  - attr(*, &quot;dimnames&quot;)=List of 2
+##   ..$ : NULL
+##   ..$ : chr [1:3] &quot;song_references&quot; &quot;Endorsements&quot; &quot;album_release_date&quot;
+##  - attr(*, &quot;scaled:center&quot;)= Named num [1:3] 188.7 56.6 2008.2
+##   ..- attr(*, &quot;names&quot;)= chr [1:3] &quot;song_references&quot; &quot;Endorsements&quot; &quot;album_release_date&quot;
+##  - attr(*, &quot;scaled:scale&quot;)= Named num [1:3] 73.93 83.31 6.78
+##   ..- attr(*, &quot;names&quot;)= chr [1:3] &quot;song_references&quot; &quot;Endorsements&quot; &quot;album_release_date&quot;</code></pre>
+<pre class="r"><code>joined_pca&lt;-princomp(joined_num)
+names(joined_pca)</code></pre>
+<pre><code>## [1] &quot;sdev&quot;     &quot;loadings&quot; &quot;center&quot;   &quot;scale&quot;    &quot;n.obs&quot;    &quot;scores&quot;  
+## [7] &quot;call&quot;</code></pre>
+<pre class="r"><code>summary(joined_pca, loadings=T)</code></pre>
+<pre><code>## Importance of components:
+##                           Comp.1    Comp.2     Comp.3
+## Standard deviation     1.3783210 0.9903762 0.33053152
+## Proportion of Variance 0.6354029 0.3280566 0.03654048
+## Cumulative Proportion  0.6354029 0.9634595 1.00000000
+## 
+## Loadings:
+##                    Comp.1 Comp.2 Comp.3
+## song_references     0.701         0.707
+## Endorsements       -0.701         0.708
+## album_release_date  0.131 -0.991</code></pre>
+<pre class="r"><code>eigval&lt;-joined_pca$sdev^2
+varprop=round(eigval/sum(eigval),2)
+ggplot()+geom_bar(aes(y=varprop,x=1:3),stat=&quot;identity&quot;)+xlab(&quot;&quot;)+geom_path(aes(y=varprop,x=1:3))+
+ geom_text(aes(x=1:3,y=varprop,label=round(varprop,2)),vjust=1,col=&quot;white&quot;,size=5)+
+ scale_y_continuous(breaks=seq(0,.6,.2),labels = scales::percent)+
+ scale_x_continuous(breaks=1:13)</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>eigvalround&lt;-round(cumsum(eigval)/sum(eigval),2) 
+eigvalround</code></pre>
+<pre><code>## Comp.1 Comp.2 Comp.3 
+##   0.64   0.96   1.00</code></pre>
+<pre class="r"><code>summary(joined_pca, loadings=T)</code></pre>
+<pre><code>## Importance of components:
+##                           Comp.1    Comp.2     Comp.3
+## Standard deviation     1.3783210 0.9903762 0.33053152
+## Proportion of Variance 0.6354029 0.3280566 0.03654048
+## Cumulative Proportion  0.6354029 0.9634595 1.00000000
+## 
+## Loadings:
+##                    Comp.1 Comp.2 Comp.3
+## song_references     0.701         0.707
+## Endorsements       -0.701         0.708
+## album_release_date  0.131 -0.991</code></pre>
+<pre class="r"><code>joineddf&lt;-data.frame(PC1=joined_pca$scores[,1], PC2=joined_pca$scores[,2])
+ggplot(joineddf,aes(PC1, PC2))+geom_point()</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<p>There is a high negative covariance between endorsements and song references meaning that they don’t distinguish observations from each other. PC1 does not have much similarity. Album release date has very different magnitude from song references and endorsements, but has same sign as song references. Song references and endorsements have very similar magnitudes but opposite signs. PC2 is song references vs endorsements axis, where album release date is high scoring. PC3 is an axis for album release date where endorsements and song references have near magnitude and sign.</p>
+<p>In the plot of loadings, each principal component appears to only be associated with one variable each. There are large angles between vectors implyng a low correlation. Therefore this study can conclude that there is not a significant correlation between song references on endorsements.</p>
+</div>
+
+              <hr>
+              <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div>
+            </div>
+          </div>
+          <hr>
+        <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+        </div>
+      </div>
+      
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

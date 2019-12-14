@@ -1,0 +1,4 @@
+"0",""
+"0","#summary 4 group by candidate, minimum endorsements"
+"0","joined %>% group_by(candidate) %>% summarize(least_endorsements=min(Endorsements)) %>%"
+"0","  arrange(least_endorsements)"

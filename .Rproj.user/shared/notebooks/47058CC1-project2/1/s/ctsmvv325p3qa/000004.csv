@@ -1,0 +1,3 @@
+"0",""
+"0","#mean diff"
+"0","visits %>% group_by(privins) %>% summarize(means=mean(faminc)) %>% summarize(diff(means))"

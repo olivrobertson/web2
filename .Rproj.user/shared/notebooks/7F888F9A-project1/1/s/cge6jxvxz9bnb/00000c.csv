@@ -1,0 +1,20 @@
+"0",""
+"0",""
+"0","#summary 6 number of times artists referenced candidates"
+"0","joined %>% select(artist, candidate) %>% group_by(artist) %>%"
+"0","  summarize(artist_cand_ref=n()) %>% arrange(artist) %>% "
+"0","  glimpse()"
+"1","Observations: 216
+"
+"1","Variables: 2
+"
+"1","$ artist          [3m[90m<fct>[39m[23m 12 o'clock - brookl...
+"
+"1",""
+"1","$ artist_cand_ref [3m[90m<int>[39m[23m 1, 1, 2, 1, 1, 1, 1...
+"
+"0"," "
+"0",""
+"0","#summary 7 song references to endorsements proportion"
+"0","joined %>% mutate(proportion=song_references/Endorsements) %>%"
+"0","  summarize(proportion_sd=sd(proportion))"

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Olivia Robertson" />
+    <meta name="description" content="Describe your website">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>project2</title>
+    <meta name="generator" content="Hugo 0.61.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/blog/">BLOG</a></li>
+        
+        <li><a href="/about/">ABOUT</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project2/">project2</a></strong>
+          </h3>
+        </div>
+        <div class="blog-title">
+          <h4>
+          January 1, 0001
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<pre class="r"><code>library(tidyr)
+library(ggplot2)
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(tibble)
+library(MASS)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;MASS&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     select</code></pre>
+<pre class="r"><code>library(lmtest)</code></pre>
+<pre><code>## Loading required package: zoo</code></pre>
+<pre><code>## 
+## Attaching package: &#39;zoo&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     as.Date, as.Date.numeric</code></pre>
+<pre class="r"><code>library(plotROC) 
+library(boot)
+library(glmnet)</code></pre>
+<pre><code>## Loading required package: Matrix</code></pre>
+<pre><code>## 
+## Attaching package: &#39;Matrix&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:tidyr&#39;:
+## 
+##     expand, pack, unpack</code></pre>
+<pre><code>## Loaded glmnet 3.0-1</code></pre>
+<pre class="r"><code>library(sandwich)</code></pre>
+<p>##Introduction
+My dataset includes patient information on physician office visits from the package Ecdat. The variables included in this dataset are “ofp” number of physician office visits, “ofnp” number of nonphysician office visits, “opp” number of physician outpatient visits, “opnp” number of nonphysician outpatient visits, “emr” number of emergency room visits, “hosp” number of hospitalizations, “numchron” number of chronic conditions, binary “adldiff” if the person has a condition that limits activities of daily living, “age” age in years (divided by 10), binary “black” if the person african–american, “sex” if the person is male or female, binary “married” if the person is married, “school” number of years of education, “faminc” family income in $10000, binary “employed” if the person employed, binary “privins” if the person covered by private health insurance, binary “medicaid” is the person covered by medicaid, “region” the region (northeast, midwest,west, other), and “hlth” self-perceived health (excellent, poor, other).</p>
+<p>The purpose of this project is to determine variables with and without interaction that account for if an individual has a condition that limits activities of daily living.</p>
+<pre class="r"><code>visits &lt;- read.csv(&quot;OFP.csv&quot;)
+head(visits)</code></pre>
+<pre><code>##   X ofp ofnp opp opnp emr hosp numchron adldiff age black    sex maried
+## 1 1   5    0   0    0   0    1        2       0 6.9   yes   male    yes
+## 2 2   1    0   2    0   2    0        2       0 7.4    no female    yes
+## 3 3  13    0   0    0   3    3        4       1 6.6   yes female     no
+## 4 4  16    0   5    0   1    1        2       1 7.6    no   male    yes
+## 5 5   3    0   0    0   0    0        2       1 7.9    no female    yes
+## 6 6  17    0   0    0   0    0        5       1 6.6    no female     no
+##   school faminc employed privins medicaid region  hlth
+## 1      6 2.8810      yes     yes       no  other other
+## 2     10 2.7478       no     yes       no  other other
+## 3     10 0.6532       no      no      yes  other  poor
+## 4      3 0.6588       no     yes       no  other  poor
+## 5      6 0.6588       no     yes       no  other other
+## 6      7 0.3301       no      no      yes  other  poor</code></pre>
+<p>##MANOVA</p>
+<pre class="r"><code>#Normality
+ggplot(visits, aes(x = ofp, y = numchron)) +
+ geom_point(alpha = .5) + geom_density_2d(h=2) + coord_fixed() + facet_wrap(~region)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code>#Homogeneity
+covmats&lt;-visits%&gt;%group_by(region)%&gt;%do(covs=cov(.[2:3]))
+for(i in 1:3){print(covmats$covs[i])}</code></pre>
+<pre><code>## [[1]]
+##            ofp      ofnp
+## ofp  40.582725  6.319781
+## ofnp  6.319781 37.474543
+## 
+## [[1]]
+##           ofp     ofnp
+## ofp  54.43531 16.08302
+## ofnp 16.08302 31.62989
+## 
+## [[1]]
+##            ofp      ofnp
+## ofp  43.491422  5.260384
+## ofnp  5.260384 16.457533</code></pre>
+<pre class="r"><code>#MANOVA
+man1&lt;-manova(cbind(ofp,opp,emr,hosp,numchron,age,school,faminc)~region, data=visits)
+summary(man1)</code></pre>
+<pre><code>##             Df   Pillai approx F num Df den Df    Pr(&gt;F)    
+## region       3 0.044757    8.324     24  13191 &lt; 2.2e-16 ***
+## Residuals 4402                                              
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>#Univariate ANOVA
+summary.aov(man1)</code></pre>
+<pre><code>##  Response ofp :
+##               Df Sum Sq Mean Sq F value   Pr(&gt;F)   
+## region         3    583 194.286   4.262 0.005164 **
+## Residuals   4402 200669  45.586                    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response opp :
+##               Df Sum Sq Mean Sq F value Pr(&gt;F)
+## region         3      3   1.136  0.0851 0.9682
+## Residuals   4402  58771  13.351               
+## 
+##  Response emr :
+##               Df  Sum Sq Mean Sq F value Pr(&gt;F)
+## region         3    1.92 0.63973  1.2923 0.2752
+## Residuals   4402 2179.15 0.49504               
+## 
+##  Response hosp :
+##               Df  Sum Sq Mean Sq F value Pr(&gt;F)
+## region         3    0.78 0.26003  0.4666 0.7056
+## Residuals   4402 2453.29 0.55731               
+## 
+##  Response numchron :
+##               Df Sum Sq Mean Sq F value   Pr(&gt;F)   
+## region         3   26.3  8.7558  4.8194 0.002368 **
+## Residuals   4402 7997.5  1.8168                    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response age :
+##               Df  Sum Sq Mean Sq F value Pr(&gt;F)
+## region         3    0.19 0.06341  0.1579 0.9246
+## Residuals   4402 1767.10 0.40143               
+## 
+##  Response school :
+##               Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## region         3   1941  647.07  47.766 &lt; 2.2e-16 ***
+## Residuals   4402  59633   13.55                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response faminc :
+##               Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## region         3    507 169.017  20.016 6.989e-13 ***
+## Residuals   4402  37171   8.444                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>#t-tests
+pairwise.t.test(visits$ofp,visits$region,
+ p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  visits$ofp and visits$region 
+## 
+##         midwest noreast other 
+## noreast 0.0258  -       -     
+## other   0.5152  0.0740  -     
+## west    0.0020  0.4080  0.0069
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(visits$opp,visits$region,
+ p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  visits$opp and visits$region 
+## 
+##         midwest noreast other
+## noreast 0.62    -       -    
+## other   0.76    0.80    -    
+## west    0.87    0.76    0.92 
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(visits$emr,visits$region,
+ p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  visits$emr and visits$region 
+## 
+##         midwest noreast other
+## noreast 0.647   -       -    
+## other   0.076   0.264   -    
+## west    0.171   0.393   0.903
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(visits$hosp,visits$region,
+ p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  visits$hosp and visits$region 
+## 
+##         midwest noreast other
+## noreast 0.37    -       -    
+## other   0.87    0.27    -    
+## west    0.87    0.33    0.98 
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(visits$numchron,visits$region,
+ p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  visits$numchron and visits$region 
+## 
+##         midwest noreast other  
+## noreast 0.64740 -       -      
+## other   0.00053 0.00814 -      
+## west    0.36993 0.67854 0.03307
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(visits$age,visits$region,
+ p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  visits$age and visits$region 
+## 
+##         midwest noreast other
+## noreast 0.62    -       -    
+## other   0.71    0.85    -    
+## west    0.89    0.56    0.64 
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(visits$school,visits$region,
+ p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  visits$school and visits$region 
+## 
+##         midwest noreast other  
+## noreast 0.65    -       -      
+## other   7.2e-09 2.1e-06 -      
+## west    3.0e-10 3.5e-10 &lt; 2e-16
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(visits$faminc,visits$region,
+ p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  visits$faminc and visits$region 
+## 
+##         midwest noreast other  
+## noreast 0.2079  -       -      
+## other   0.0019  3.4e-05 -      
+## west    6.7e-06 0.0024  5.0e-14
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>#bonferroni 
+1+8+48</code></pre>
+<pre><code>## [1] 57</code></pre>
+<pre class="r"><code>0.05/57</code></pre>
+<pre><code>## [1] 0.000877193</code></pre>
+<pre class="r"><code>#Type I Error calc
+1 - 0.95^57</code></pre>
+<pre><code>## [1] 0.9462665</code></pre>
+<p>It is likely that independent observations were made but it isn’t known if this is a random sample. It might not be likely that homogeneity, multicollinearity, linear relationships among dependent variables and multivariance were met. I do not expect there to be extreme uni- or multivariaant outliers.</p>
+<p>Assuming that the data passes the MANOVA assumptions, our hypothesis is that the numeric variables have equal means of the group for the categorical variable region. I left out the numeric variables number of nonphysician office visits and number of nonphysician outpatient visits because it would be redundant with number of physician office visits and number of physician outpatient visits included.</p>
+<p>The MANOVA found that there is significantly different means among the numeric variables for region (p-value &lt;&lt; 0.05). The bonferroni adjustment was made to control Type I error to correct alpha to 0.000877193 where from the follow up univariate ANOVA tests school and family income variables were found to have significantly mean difference across regions (p-value &lt; 0.00088).</p>
+<p>Post hoc analysis was done for pairwise comparisons of the significant variables to find what regions differed in number of years of school and family income. Only the midwest and north east regions not significantly differ in means for number of years in school. The midwest and west, other and north east, and west and other were the regions that significantly differed in family income. This analysis was done according to the bonferroni adjustment for multiple comparisons.</p>
+<p>A total of 57 tests were done for this analysis (1 MANOVA, 8 ANOVA and 48 t-tests). There is a 0.9462 probability of at least one Type I error. The bonferroni test kept the error rate at 0.05 by adjusting to 0.00088 as discussed.</p>
+<p>##Randomization Test</p>
+<pre class="r"><code>#null distribution
+visits %&gt;% ggplot(aes(faminc,fill=privins))+geom_histogram(bins=6.5)+facet_wrap(~privins) + xlab(&quot;Family Income ($10,000)&quot;) + ggtitle(&quot;Private Insurance for Family Incomes&quot;)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>#mean diff
+visits %&gt;% group_by(privins) %&gt;% summarize(means=mean(faminc)) %&gt;% summarize(diff(means))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `diff(means)`
+##           &lt;dbl&gt;
+## 1          1.11</code></pre>
+<pre class="r"><code>#randomization
+set.seed(348)
+
+rand_dist&lt;-vector()
+for(i in 1:5000){
+rand&lt;-data.frame(income=sample(visits$faminc),insurance=visits$privins)
+rand_dist[i]&lt;-mean(rand[rand$insurance==&quot;yes&quot;,]$income)-
+ mean(rand[rand$insurance==&quot;no&quot;,]$income)}
+
+#p-value
+mean(rand_dist&gt;1.112961)*2</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code>#t-test
+t.test(data=visits,faminc~privins)</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  faminc by privins
+## t = -13.842, df = 2659.1, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -1.270625 -0.955296
+## sample estimates:
+##  mean in group no mean in group yes 
+##          1.662984          2.775944</code></pre>
+<pre class="r"><code>{hist(rand_dist,main=&quot;Test Statistic Distribution&quot;,ylab=&quot;Frequency&quot;,xlim = c(-.4,1.2)); abline(v = 1.112961,col=&quot;red&quot;)}</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-6-2.png" width="672" />
+The null hypothesis for this randomization test is that mean family income is the same for
+individuals with and without private insurance. The alternate hypothesis is that mean family income is different across individuals with and withouot private insurance.</p>
+<p>##Linear Regression Model</p>
+<pre class="r"><code>#fit with interaction
+visits$ofp_c&lt;-visits$ofp-mean(visits$ofp)
+visits$faminc_c&lt;-visits$faminc-mean(visits$faminc)
+fit &lt;- lm(numchron ~ ofp_c*maried*faminc_c, data=visits)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = numchron ~ ofp_c * maried * faminc_c, data = visits)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4.2727 -1.0343 -0.3119  0.6588  6.7424 
+## 
+## Coefficients:
+##                           Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)               1.589926   0.031457  50.543   &lt;2e-16 ***
+## ofp_c                     0.046633   0.004478  10.414   &lt;2e-16 ***
+## mariedyes                -0.066920   0.041479  -1.613   0.1067    
+## faminc_c                  0.005960   0.014866   0.401   0.6885    
+## ofp_c:mariedyes           0.006964   0.006037   1.154   0.2487    
+## ofp_c:faminc_c           -0.004273   0.001902  -2.246   0.0247 *  
+## mariedyes:faminc_c       -0.031087   0.016807  -1.850   0.0644 .  
+## ofp_c:mariedyes:faminc_c  0.005468   0.002346   2.331   0.0198 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1.301 on 4398 degrees of freedom
+## Multiple R-squared:  0.07292,    Adjusted R-squared:  0.07144 
+## F-statistic: 49.42 on 7 and 4398 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>#Plot
+ggplot(visits, aes(x=ofp_c, y=numchron,group=maried))+geom_point(aes(color=maried))+
+ geom_smooth(method=&quot;lm&quot;,formula=y~1,se=F,fullrange=T,aes(color=maried))+xlab(&quot;Family Income ($10,000)&quot;) + ylab(&quot;Number of  Chronic Illnesses&quot;) +ggtitle(&quot;Number of Chronic Illnesses by Family Income&quot;)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<pre class="r"><code>#Assumptions
+resids&lt;-fit$residuals; fitvals&lt;-fit$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, col=&quot;red&quot;)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code>bptest(fit)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit
+## BP = 120.01, df = 7, p-value &lt; 2.2e-16</code></pre>
+<pre class="r"><code>ggplot()+geom_histogram(aes(resids),bins=20)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-9-2.png" width="672" /></p>
+<pre class="r"><code>ggplot()+geom_qq(aes(sample=resids))+geom_qq_line()</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-9-3.png" width="672" /></p>
+<pre class="r"><code>ks.test(resids, &quot;pnorm&quot;, sd=sd(resids))</code></pre>
+<pre><code>## Warning in ks.test(resids, &quot;pnorm&quot;, sd = sd(resids)): ties should not be
+## present for the Kolmogorov-Smirnov test</code></pre>
+<pre><code>## 
+##  One-sample Kolmogorov-Smirnov test
+## 
+## data:  resids
+## D = 0.13155, p-value &lt; 2.2e-16
+## alternative hypothesis: two-sided</code></pre>
+<pre class="r"><code>#robust standard errors
+summary(fit)$coef[,1:2]</code></pre>
+<pre><code>##                              Estimate  Std. Error
+## (Intercept)               1.589925786 0.031456758
+## ofp_c                     0.046633493 0.004477811
+## mariedyes                -0.066920123 0.041479153
+## faminc_c                  0.005960421 0.014865905
+## ofp_c:mariedyes           0.006963694 0.006036566
+## ofp_c:faminc_c           -0.004272970 0.001902349
+## mariedyes:faminc_c       -0.031087335 0.016806799
+## ofp_c:mariedyes:faminc_c  0.005467513 0.002345572</code></pre>
+<pre class="r"><code>coeftest(fit, vcov = vcovHC(fit))[,1:2]</code></pre>
+<pre><code>##                              Estimate  Std. Error
+## (Intercept)               1.589925786 0.033875220
+## ofp_c                     0.046633493 0.006720185
+## mariedyes                -0.066920123 0.043389741
+## faminc_c                  0.005960421 0.017991131
+## ofp_c:mariedyes           0.006963694 0.009382407
+## ofp_c:faminc_c           -0.004272970 0.002789926
+## mariedyes:faminc_c       -0.031087335 0.020341280
+## ofp_c:mariedyes:faminc_c  0.005467513 0.003488509</code></pre>
+<pre class="r"><code>#fit w/o interaction
+fit2 &lt;- lm(numchron ~ ofp_c+maried+faminc_c, data=visits)
+summary(fit2)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = numchron ~ ofp_c + maried + faminc_c, data = visits)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4.3095 -1.0708 -0.3061  0.6535  6.8883 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  1.569889   0.029633  52.977  &lt; 2e-16 ***
+## ofp_c        0.052171   0.002901  17.982  &lt; 2e-16 ***
+## mariedyes   -0.051094   0.040695  -1.256  0.20935    
+## faminc_c    -0.019085   0.006927  -2.755  0.00589 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1.301 on 4402 degrees of freedom
+## Multiple R-squared:  0.07104,    Adjusted R-squared:  0.07041 
+## F-statistic: 112.2 on 3 and 4402 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>This linear regression used number of chronic illnesses as the response variable and mean centered physician’s office visits. marital status and family income as the predictors with interaction. The intercept, 1.59, is the predicted number of chronic illnessess when physician’s office visits and family income is 0 USD and unmarried. While holding marriage status and family income constant, for every 1 increase centered physician’s office visits the number of chronic illnesses is expected to increase by 0.0466. While holding physician’s office visits and family income constant, a married individudal will have 0.0669 less chronic illnesses than a person who isn’t married. While holding physician’s office visits and marital status constant, for every $1 increase in centered family income, the number of chronic illnessess will increase by 0.00596. The expected physicians office visits for non-married individuals is 0.006964 more than for those who are married. Family income is expected to be 0.0311 USD less for nonmarried people than married people. For each increase in physicians office vist, family income is expected to decrease by 0.004273 USD. For individuals who are not married, with each increase of physician’s office visits, family income is expected to increase 0.005458 USD more than for those who are married with each increase of physician’s office vists.</p>
+<p>This data does not pass linearity, homoskedasticity, or normality.</p>
+<p>Using robust standard error, the coefficients did not change. The SE’s increased with robust standard errors.</p>
+<p>This model explains 7.292% of the variation in the outcome.</p>
+<p>When running the model without interaction, one of the predictors (family income) is now significant.</p>
+<p>##Bootstrapped Standard Errors of Linear Regression Model</p>
+<pre class="r"><code>samp_distn&lt;-replicate(5000, {
+ boot_dat&lt;-boot_dat&lt;-visits[sample(nrow(visits),replace=TRUE),]
+ fit3&lt;-lm(numchron ~ faminc_c * maried*ofp_c, data=boot_dat)
+ coef(fit3)
+})
+
+samp_distn%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept)   faminc_c mariedyes      ofp_c faminc_c:mariedyes
+## 1  0.03338738 0.01741327 0.0427156 0.00653458          0.0195547
+##   faminc_c:ofp_c mariedyes:ofp_c faminc_c:mariedyes:ofp_c
+## 1    0.002683802     0.009085953              0.003286179</code></pre>
+<p>The bootstrapped standard errors are much more similar to the robust standard errors than the original, however they are slightly less.
+##Logistic Regression</p>
+<pre class="r"><code>#regression
+fit4&lt;-glm(adldiff~ofp_c+faminc_c,data=visits,family=binomial(link=&quot;logit&quot;))
+coeftest(fit4)</code></pre>
+<pre><code>## 
+## z test of coefficients:
+## 
+##               Estimate Std. Error  z value  Pr(&gt;|z|)    
+## (Intercept) -1.4128048  0.0392614 -35.9846 &lt; 2.2e-16 ***
+## ofp_c        0.0352047  0.0050362   6.9904 2.741e-12 ***
+## faminc_c    -0.1358598  0.0204638  -6.6390 3.158e-11 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>exp(coef(fit4))</code></pre>
+<pre><code>## (Intercept)       ofp_c    faminc_c 
+##   0.2434595   1.0358317   0.8729650</code></pre>
+<pre class="r"><code>#confusion matrix
+visits$prob&lt;-predict(fit4,type=&quot;response&quot;) 
+table(predict=as.numeric(visits$prob&gt;.5),truth=visits$adldiff)%&gt;%addmargins</code></pre>
+<pre><code>##        truth
+## predict    0    1  Sum
+##     0   3492  890 4382
+##     1     15    9   24
+##     Sum 3507  899 4406</code></pre>
+<pre class="r"><code>#Accuracy
+(3492+9)/4406</code></pre>
+<pre><code>## [1] 0.7945983</code></pre>
+<pre class="r"><code>#Sensitivity (TPR)
+9/899</code></pre>
+<pre><code>## [1] 0.01001112</code></pre>
+<pre class="r"><code>#Specificity (TNR)
+3492/3507</code></pre>
+<pre><code>## [1] 0.9957228</code></pre>
+<pre class="r"><code>#Recall (PPV)
+9/24</code></pre>
+<pre><code>## [1] 0.375</code></pre>
+<pre class="r"><code>#plot
+visits$logit&lt;-predict(fit4) #get predicted log-odds
+visits$outcome&lt;-factor(visits$adldiff,levels=c(&quot;0&quot;,&quot;1&quot;))
+ggplot(visits,aes(logit, fill=outcome))+geom_density(alpha=.3)+
+  geom_vline(xintercept=0,lty=2)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<pre class="r"><code>#ROC and AUC
+ROCplot&lt;-ggplot(visits)+geom_roc(aes(d=adldiff,m=prob), n.cuts=0)+
+ geom_segment(aes(x=0,xend=1,y=0,yend=1),lty=2)
+ROCplot</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.6262655</code></pre>
+<pre class="r"><code>#function
+class_diag&lt;-function(probs,truth){
+ tab&lt;-table(factor(probs&gt;.5,levels=c(&quot;FALSE&quot;,&quot;TRUE&quot;)),truth)
+ acc=sum(diag(tab))/sum(tab)
+ sens=tab[2,2]/colSums(tab)[2]
+ spec=tab[1,1]/colSums(tab)[1]
+ ppv=tab[2,2]/rowSums(tab)[2]
+ if(is.numeric(truth)==FALSE &amp; is.logical(truth)==FALSE) truth&lt;-as.numeric(truth)-1
+ #CALCULATE EXACT AUC
+ ord&lt;-order(probs, decreasing=TRUE)
+ probs &lt;- probs[ord]; truth &lt;- truth[ord]
+ TPR=cumsum(truth)/max(1,sum(truth))
+ FPR=cumsum(!truth)/max(1,sum(!truth))
+ dup&lt;-c(probs[-1]&gt;=probs[-length(probs)], FALSE)
+ TPR&lt;-c(0,TPR[!dup],1); FPR&lt;-c(0,FPR[!dup],1)
+ n &lt;- length(TPR)
+ auc&lt;- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+ data.frame(acc,sens,spec,ppv,auc)
+} 
+
+#CV 10 fold
+set.seed(1234)
+k=10 
+visitscv&lt;-visits[sample(nrow(visits)),] 
+folds&lt;-cut(seq(1:nrow(visits)),breaks=k,labels=F) 
+diags&lt;-NULL
+for(i in 1:k){
+
+ train&lt;-visitscv[folds!=i,]
+ test&lt;-visitscv[folds==i,]
+ truth&lt;-test$adldiff
+
+ fit5&lt;-glm(adldiff~ofp+faminc,data=train,family=&quot;binomial&quot;)
+ probs&lt;-predict(fit5,newdata = test,type=&quot;response&quot;)
+
+ diags&lt;-rbind(diags,class_diag(probs,truth))
+}
+apply(diags,2,mean) </code></pre>
+<pre><code>##         acc        sens        spec         ppv         auc 
+## 0.794836116 0.008991227 0.996312405         NaN 0.625437875</code></pre>
+<p>This logistic regression used the binary variable “adldiff” as the response variable and mean centered physician’s office visits and family income as predictors. When an individual has a family income of 0 and has never visited a physician’s office, their odds for having a condition limiting daily activity is 0.2801. While holding family income constant, odds of a condition limiting daily activity decreases 1.0358 with each increase in visit to a physician’s office. While holding physician office visits constant, each $10,000 increase in family income decreases the odds of a condition limiting daily activity by 0.1359. All predictors have a p-value less than 0.05, indicating the model is significant.</p>
+<p>This model is about 79.46% accurate, however it is important to note, it has an extremely low true positive rate and near perfect true negative rate.</p>
+<p>The AUC is close to 0.5, indicating that we can’t really predict individuals having a condition that limits their daily activity by family income and physicians office visits.
+##Lasso Regression</p>
+<pre class="r"><code>visitslasso &lt;- visits%&gt;%dplyr::select(-prob,-outcome,-X,-logit)
+y&lt;-as.matrix(visitslasso$adldiff)
+fit6 &lt;- glm(adldiff~.-1, data = visitslasso, family = &quot;binomial&quot;)
+x&lt;-model.matrix(fit6)
+x&lt;-scale(x)
+cv&lt;-cv.glmnet(x,y) 
+lasso1&lt;-glmnet(x,y,lambda=cv$lambda.1se)
+coef(lasso1)</code></pre>
+<pre><code>## 25 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                         s0
+## (Intercept)    0.204039946
+## ofp            .          
+## ofnp           .          
+## opp            .          
+## opnp           .          
+## emr            0.009571913
+## hosp           0.001373959
+## numchron       0.035682668
+## age            0.082327961
+## blackno        .          
+## blackyes       .          
+## sexmale       -0.003289198
+## mariedyes     -0.009840636
+## school        -0.002073423
+## faminc         .          
+## employedyes    .          
+## privinsyes     .          
+## medicaidyes    0.034984107
+## regionnoreast  .          
+## regionother    .          
+## regionwest     .          
+## hlthother      .          
+## hlthpoor       0.081731447
+## ofp_c          .          
+## faminc_c       .</code></pre>
+<pre class="r"><code>#CV 
+set.seed(1234)
+k=10 
+visitscv2&lt;-visitslasso[sample(nrow(visitslasso)),] 
+folds&lt;-cut(seq(1:nrow(visitslasso)),breaks=k,labels=F) 
+diags2&lt;-NULL
+for(i in 1:k){
+ train2&lt;-visitscv2[folds!=i,]
+ test2&lt;-visitscv2[folds==i,]
+ truth2&lt;-test2$adldiff
+ fit7&lt;-glm(adldiff~emr+hosp+numchron+age+sex+maried+school+medicaid+hlth,data=train2,family=&quot;binomial&quot;)
+ probs2&lt;-predict(fit7,newdata = test2,type=&quot;response&quot;)
+ diags2&lt;-rbind(diags2,class_diag(probs2,truth2))
+}
+diags2%&gt;%summarize_all(mean)</code></pre>
+<pre><code>##         acc      sens      spec       ppv       auc
+## 1 0.8257045 0.3343958 0.9516561 0.6392141 0.8187942</code></pre>
+<p>The LASSO regression shows that Emergency room visits, hospital visits, number of chronic illnesses, age, sex, marital status, years in school, medicaid coverage, and self reported health status to be the most important predictors of if an individual has a condition that limits their daily life. Running a 10 fold CV demonstrated a much higher AUC than from the model that only took into account family income and physician’s office visits.</p>
+
+              <hr>
+              <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div>
+            </div>
+          </div>
+          <hr>
+        <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+        </div>
+      </div>
+      
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

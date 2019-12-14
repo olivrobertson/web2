@@ -1,0 +1,96 @@
+"0","#creating number of endorsements variable"
+"0","comb <- end %>% group_by(Candidate) %>% summarize(Endorsements=n_distinct(Endorser))%>%"
+"0","  full_join(hh, by=c(""Candidate""=""candidate"")) %>%"
+"0","  distinct() %>% na.omit() %>% glimpse()"
+"2","Column `Candidate`/`candidate` joining character vector and factor, coercing into character vector"
+"1","Observations: 296
+"
+"1","Variables: 10
+"
+"1","$ Candidate          [3m[90m<chr>[39m[23m ""Donald Trump"", ...
+"
+"1",""
+"1","$ Endorsements       [3m[90m<int>[39m[23m 15, 15, 15, 15, ...
+"
+"1",""
+"1","$ idz                [3m[90m<int>[39m[23m 112, 114, 115, 1...
+"
+"1",""
+"1","$ song               [3m[90m<fct>[39m[23m protect ya neck ...
+"
+"1",""
+"1","$ artist             [3m[90m<fct>[39m[23m 12 o'clock - bro...
+"
+"1",""
+"1","$ sentiment          [3m[90m<fct>[39m[23m positive, positi...
+"
+"1",""
+"1","$ theme              [3m[90m<fct>[39m[23m money, money, mo...
+"
+"1",""
+"1","$ album_release_date [3m[90m<int>[39m[23m 1995, 2002, 1990...
+"
+"1",""
+"1","$ line               [3m[90m<fct>[39m[23m ""given the power...
+"
+"1",""
+"1","$ url                [3m[90m<fct>[39m[23m http://genius.co...
+"
+"0","#getting rid of unnecessary columns"
+"0","comb2 <- comb %>% select(-idz,-url,-line) %>% glimpse()"
+"1","Observations: 296
+"
+"1","Variables: 7
+"
+"1","$ Candidate          [3m[90m<chr>[39m[23m ""Donald Trump"", ...
+"
+"1",""
+"1","$ Endorsements       [3m[90m<int>[39m[23m 15, 15, 15, 15, ...
+"
+"1",""
+"1","$ song               [3m[90m<fct>[39m[23m protect ya neck ...
+"
+"1",""
+"1","$ artist             [3m[90m<fct>[39m[23m 12 o'clock - bro...
+"
+"1",""
+"1","$ sentiment          [3m[90m<fct>[39m[23m positive, positi...
+"
+"1",""
+"1","$ theme              [3m[90m<fct>[39m[23m money, money, mo...
+"
+"1",""
+"1","$ album_release_date [3m[90m<int>[39m[23m 1995, 2002, 1990...
+"
+"0","#creating number of song references variable"
+"0","joined <- hh %>% group_by(candidate) %>% summarize(song_references=n_distinct(song))%>%"
+"0","  full_join(comb2, by=c(""candidate""=""Candidate"")) %>% "
+"0","  na.omit() %>% glimpse()"
+"2","Column `candidate`/`Candidate` joining factor and character vector, coercing into character vector"
+"1","Observations: 296
+"
+"1","Variables: 8
+"
+"1","$ candidate          [3m[90m<chr>[39m[23m ""Donald Trump"", ...
+"
+"1",""
+"1","$ song_references    [3m[90m<int>[39m[23m 228, 228, 228, 2...
+"
+"1",""
+"1","$ Endorsements       [3m[90m<int>[39m[23m 15, 15, 15, 15, ...
+"
+"1",""
+"1","$ song               [3m[90m<fct>[39m[23m protect ya neck ...
+"
+"1",""
+"1","$ artist             [3m[90m<fct>[39m[23m 12 o'clock - bro...
+"
+"1",""
+"1","$ sentiment          [3m[90m<fct>[39m[23m positive, positi...
+"
+"1",""
+"1","$ theme              [3m[90m<fct>[39m[23m money, money, mo...
+"
+"1",""
+"1","$ album_release_date [3m[90m<int>[39m[23m 1995, 2002, 1990...
+"

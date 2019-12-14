@@ -1,0 +1,17 @@
+"0",""
+"0",""
+"0","#summary 2: # of songs referencing Donald Trump"
+"0","joined %>% filter(candidate==""Donald Trump"") %>% group_by(candidate) %>%"
+"0","  summarize(donald_song_references=n_distinct(song)) %>% "
+"0","  glimpse()"
+"1","Observations: 1
+"
+"1","Variables: 2
+"
+"1","$ candidate              [3m[90m<chr>[39m[23m ""Donald Trump""
+"
+"1",""
+"1","$ donald_song_references [3m[90m<int>[39m[23m 228
+"
+"0","#summary 3 mean album release date"
+"0","joined %>% na.omit() %>% summarize(mean_album_date=mean(album_release_date))"

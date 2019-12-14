@@ -1,0 +1,197 @@
+"0","endorsement <- read.csv(""endorsement.csv"")"
+"0","endorsement %>% glimpse()"
+"1","Observations: 447
+"
+"1","Variables: 5
+"
+"1","$ ï..Candidate [3m[90m<fct>[39m[23m Hillary Clinton, Hilla...
+"
+"1",""
+"1","$ Date         [3m[90m<fct>[39m[23m 6/7/2016, 5/31/2019, 5...
+"
+"1",""
+"1","$ Endorser     [3m[90m<fct>[39m[23m Nancy Pelosinew, Jerry...
+"
+"1",""
+"1","$ Position     [3m[90m<fct>[39m[23m Rep. (D-Calif.), Gov. ...
+"
+"1",""
+"1","$ Pts.         [3m[90m<int>[39m[23m 1, 10, 1, 5, 1, 1, 10,...
+"
+"0","hiphop <- read.csv(""hiphop.csv"")"
+"0","hiphop %>% glimpse()"
+"1","Observations: 377
+"
+"1","Variables: 9
+"
+"1","$ idz                [3m[90m<int>[39m[23m 1, 2, 3, 4, 5, 6...
+"
+"1",""
+"1","$ candidate          [3m[90m<fct>[39m[23m Mike Huckabee, M...
+"
+"1",""
+"1","$ song               [3m[90m<fct>[39m[23m none shall pass,...
+"
+"1",""
+"1","$ artist             [3m[90m<fct>[39m[23m aesop rock, soul...
+"
+"1",""
+"1","$ sentiment          [3m[90m<fct>[39m[23m neutral, negativ...
+"
+"1",""
+"1","$ theme              [3m[90m<fct>[39m[23m NA, NA, NA, poli...
+"
+"1",""
+"1","$ album_release_date [3m[90m<int>[39m[23m 2011, 2012, 2006...
+"
+"1",""
+"1","$ line               [3m[90m<fct>[39m[23m ""wither by the w...
+"
+"1",""
+"1","$ url                [3m[90m<fct>[39m[23m http://genius.co...
+"
+"0","colnames(endorsement)[1] <- ""Candidate"""
+"0","endorsement %>% na.omit() %>% glimpse()"
+"1","Observations: 447
+"
+"1","Variables: 5
+"
+"1","$ Candidate [3m[90m<fct>[39m[23m Hillary Clinton, Hillary ...
+"
+"1",""
+"1","$ Date      [3m[90m<fct>[39m[23m 6/7/2016, 5/31/2019, 5/29...
+"
+"1",""
+"1","$ Endorser  [3m[90m<fct>[39m[23m Nancy Pelosinew, Jerry Br...
+"
+"1",""
+"1","$ Position  [3m[90m<fct>[39m[23m Rep. (D-Calif.), Gov. (D-...
+"
+"1",""
+"1","$ Pts.      [3m[90m<int>[39m[23m 1, 10, 1, 5, 1, 1, 10, 1,...
+"
+"0","hh <- hiphop %>% na.omit() %>% glimpse()"
+"1","Observations: 298
+"
+"1","Variables: 9
+"
+"1","$ idz                [3m[90m<int>[39m[23m 4, 5, 6, 8, 9, 1...
+"
+"1",""
+"1","$ candidate          [3m[90m<fct>[39m[23m Jeb Bush, Jeb Bu...
+"
+"1",""
+"1","$ song               [3m[90m<fct>[39m[23m the truth, money...
+"
+"1",""
+"1","$ artist             [3m[90m<fct>[39m[23m diabolic, gorill...
+"
+"1",""
+"1","$ sentiment          [3m[90m<fct>[39m[23m negative, negati...
+"
+"1",""
+"1","$ theme              [3m[90m<fct>[39m[23m political, perso...
+"
+"1",""
+"1","$ album_release_date [3m[90m<int>[39m[23m 2006, 2007, 2012...
+"
+"1",""
+"1","$ line               [3m[90m<fct>[39m[23m ""what you heard ...
+"
+"1",""
+"1","$ url                [3m[90m<fct>[39m[23m http://genius.co...
+"
+"0","#already tidy so made untidy then pivoted from wide to long"
+"0","endorsement %>% pivot_wider(names_from=""Candidate"", values_from=""Date"") %>% glimpse()"
+"1","Observations: 407
+"
+"1","Variables: 21
+"
+"1","$ Endorser          [3m[90m<fct>[39m[23m Nancy Pelosinew, ...
+"
+"1",""
+"1","$ Position          [3m[90m<fct>[39m[23m Rep. (D-Calif.), ...
+"
+"1",""
+"1","$ Pts.              [3m[90m<int>[39m[23m 1, 10, 1, 5, 1, 1...
+"
+"1",""
+"1","$ `Hillary Clinton` [3m[90m<fct>[39m[23m 6/7/2016, 5/31/20...
+"
+"1",""
+"1","$ `Bernie Sanders`  [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Joe Biden`       [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Martin O'Malley` [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Donald Trump`    [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Marco Rubio`     [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Ted Cruz`        [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `John Kasich`     [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Chris Christie`  [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Jeb Bush`        [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Mike Huckabee`   [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Rand Paul`       [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Lindsey Graham`  [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Carly Fiorina`   [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Ben Carson`      [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Scott Walker`    [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Rick Perry`      [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"1",""
+"1","$ `Rick Santorum`   [3m[90m<fct>[39m[23m NA, NA, NA, NA, N...
+"
+"0","end <- endorsement %>% pivot_wider(names_from=""Candidate"", values_from=""Date"") %>%"
+"0","  pivot_longer(c(""Hillary Clinton"", ""Bernie Sanders"", ""Joe Biden"", "
+"0","                 ""Martin O'Malley"", ""Donald Trump"", ""Marco Rubio"","
+"0","                 ""Ted Cruz"", ""John Kasich"", ""Chris Christie"", ""Jeb Bush"","
+"0","                 ""Mike Huckabee"", ""Rand Paul"", ""Lindsey Graham"", "
+"0","                 ""Carly Fiorina"", ""Ben Carson"", ""Scott Walker"", "
+"0","                 ""Rick Perry"", ""Rick Santorum""), names_to=""Candidate"", "
+"0","               values_to=""Date"") %>% na.omit() %>% glimpse()"
+"1","Observations: 447
+"
+"1","Variables: 5
+"
+"1","$ Endorser  [3m[90m<fct>[39m[23m Nancy Pelosinew, Jerry Br...
+"
+"1",""
+"1","$ Position  [3m[90m<fct>[39m[23m Rep. (D-Calif.), Gov. (D-...
+"
+"1",""
+"1","$ Pts.      [3m[90m<int>[39m[23m 1, 10, 1, 5, 1, 1, 10, 1,...
+"
+"1",""
+"1","$ Candidate [3m[90m<chr>[39m[23m ""Hillary Clinton"", ""Hilla...
+"
+"1",""
+"1","$ Date      [3m[90m<fct>[39m[23m 6/7/2016, 5/31/2019, 5/29...
+"

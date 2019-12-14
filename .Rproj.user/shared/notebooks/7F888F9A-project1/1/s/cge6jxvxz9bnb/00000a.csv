@@ -1,0 +1,6 @@
+"0",""
+"0","joined %>% select(candidate, song, album_release_date) %>% "
+"0","  arrange(album_release_date) %>%"
+"0","  filter(album_release_date==2015 | album_release_date==2016) %>%"
+"0","  group_by(album_release_date) %>%"
+"0","  summarize(count=n()) "

@@ -1,0 +1,297 @@
+---
+title: "project2"
+author: "Olivia Robertson omr288"
+date: "11/18/2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+library(tibble)
+library(MASS)
+library(lmtest)
+library(plotROC) 
+library(boot)
+library(glmnet)
+library(sandwich)
+```
+
+##Introduction
+My dataset includes patient information on physician office visits from the package Ecdat. The variables included in this dataset are "ofp" number of physician office visits, "ofnp" number of nonphysician office visits, "opp" number of physician outpatient visits, "opnp" number of nonphysician outpatient visits, "emr" number of emergency room visits, "hosp" number of hospitalizations, "numchron" number of chronic conditions, binary "adldiff" if the person has a condition that limits activities of daily living, "age" age in years (divided by 10), binary "black" if the person african–american, "sex" if the person is male or female, binary "married" if the person is married, "school" number of years of education, "faminc" family income in $10000, binary "employed" if the person employed, binary "privins" if the person covered by private health insurance, binary "medicaid" is the person covered by medicaid, "region" the region (northeast, midwest,west, other), and "hlth" self-perceived health (excellent, poor, other).
+
+The purpose of this project is to determine variables with and without interaction that account for if an individual has a condition that limits activities of daily living. 
+```{r}
+visits <- read.csv("OFP.csv")
+head(visits)
+
+
+```
+
+##MANOVA
+```{r}
+#Normality
+ggplot(visits, aes(x = ofp, y = numchron)) +
+ geom_point(alpha = .5) + geom_density_2d(h=2) + coord_fixed() + facet_wrap(~region)
+
+#Homogeneity
+covmats<-visits%>%group_by(region)%>%do(covs=cov(.[2:3]))
+for(i in 1:3){print(covmats$covs[i])}
+
+#MANOVA
+man1<-manova(cbind(ofp,opp,emr,hosp,numchron,age,school,faminc)~region, data=visits)
+summary(man1)
+```
+```{r}
+
+#Univariate ANOVA
+summary.aov(man1)
+```
+```{r}
+
+#t-tests
+pairwise.t.test(visits$ofp,visits$region,
+ p.adj="none")
+pairwise.t.test(visits$opp,visits$region,
+ p.adj="none")
+pairwise.t.test(visits$emr,visits$region,
+ p.adj="none")
+pairwise.t.test(visits$hosp,visits$region,
+ p.adj="none")
+pairwise.t.test(visits$numchron,visits$region,
+ p.adj="none")
+pairwise.t.test(visits$age,visits$region,
+ p.adj="none")
+pairwise.t.test(visits$school,visits$region,
+ p.adj="none")
+pairwise.t.test(visits$faminc,visits$region,
+ p.adj="none")
+
+#bonferroni 
+1+8+48
+0.05/57
+
+#Type I Error calc
+1 - 0.95^57
+```
+It is likely that independent observations were made but it isn't known if this is a random sample. It might not be likely that homogeneity, multicollinearity, linear relationships among dependent variables and multivariance were met. I do not expect there to be extreme uni- or multivariaant outliers. 
+
+Assuming that the data passes the MANOVA assumptions, our hypothesis is that the numeric variables have equal means of the group for the categorical variable region. I left out the numeric variables number of nonphysician office visits and number of nonphysician outpatient visits because it would be redundant with number of physician office visits and number of physician outpatient visits included. 
+
+The MANOVA found that there is significantly different means among the numeric variables for region (p-value << 0.05). The bonferroni adjustment was made to control Type I error to correct alpha to 0.000877193 where from the follow up univariate ANOVA tests school and family income variables were found to have significantly mean difference across regions (p-value < 0.00088).
+
+Post hoc analysis was done for pairwise comparisons of the significant variables to find what regions differed in number of years of school and family income. Only the midwest and north east regions not significantly differ in means for number of years in school. The midwest and west, other and north east, and west and other were the regions that significantly differed in family income. This analysis was done according to the bonferroni adjustment for multiple comparisons.
+
+A total of 57 tests were done for this analysis (1 MANOVA, 8 ANOVA and 48 t-tests). There is a 0.9462 probability of at least one Type I error.  The bonferroni test kept the error rate at 0.05 by  adjusting to 0.00088 as discussed. 
+
+
+
+##Randomization Test
+```{r}
+#null distribution
+visits %>% ggplot(aes(faminc,fill=privins))+geom_histogram(bins=6.5)+facet_wrap(~privins) + xlab("Family Income ($10,000)") + ggtitle("Private Insurance for Family Incomes")
+
+#mean diff
+visits %>% group_by(privins) %>% summarize(means=mean(faminc)) %>% summarize(diff(means))
+
+#randomization
+set.seed(348)
+
+rand_dist<-vector()
+for(i in 1:5000){
+rand<-data.frame(income=sample(visits$faminc),insurance=visits$privins)
+rand_dist[i]<-mean(rand[rand$insurance=="yes",]$income)-
+ mean(rand[rand$insurance=="no",]$income)}
+
+#p-value
+mean(rand_dist>1.112961)*2
+
+#t-test
+t.test(data=visits,faminc~privins)
+
+
+{hist(rand_dist,main="Test Statistic Distribution",ylab="Frequency",xlim = c(-.4,1.2)); abline(v = 1.112961,col="red")}
+```
+The null hypothesis for this randomization test is that mean family income is the same for 
+individuals with and without private insurance. The alternate hypothesis is that mean family income is different across individuals with and withouot private insurance. 
+
+##Linear Regression Model
+```{r}
+#fit with interaction
+visits$ofp_c<-visits$ofp-mean(visits$ofp)
+visits$faminc_c<-visits$faminc-mean(visits$faminc)
+fit <- lm(numchron ~ ofp_c*maried*faminc_c, data=visits)
+summary(fit)
+
+
+```
+```{r}
+#Plot
+ggplot(visits, aes(x=ofp_c, y=numchron,group=maried))+geom_point(aes(color=maried))+
+ geom_smooth(method="lm",formula=y~1,se=F,fullrange=T,aes(color=maried))+xlab("Family Income ($10,000)") + ylab("Number of  Chronic Illnesses") +ggtitle("Number of Chronic Illnesses by Family Income")
+```
+```{r}
+#Assumptions
+resids<-fit$residuals; fitvals<-fit$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, col="red")
+bptest(fit)
+ggplot()+geom_histogram(aes(resids),bins=20)
+ggplot()+geom_qq(aes(sample=resids))+geom_qq_line()
+ks.test(resids, "pnorm", sd=sd(resids))
+
+
+```
+```{r}
+#robust standard errors
+summary(fit)$coef[,1:2]
+coeftest(fit, vcov = vcovHC(fit))[,1:2]
+
+```
+```{r}
+#fit w/o interaction
+fit2 <- lm(numchron ~ ofp_c+maried+faminc_c, data=visits)
+summary(fit2)
+```
+This linear regression used number of chronic illnesses as the response variable and mean centered physician's office visits. marital status and family income as the predictors with interaction. The intercept, 1.59, is the predicted number of chronic illnessess when physician's office visits and family income is 0 USD and unmarried. While holding marriage status and family income constant, for every 1 increase centered physician's office visits the number of chronic illnesses is expected to increase by 0.0466. While holding physician's office visits and family income constant, a married individudal will have 0.0669 less chronic illnesses than a person who isn't married. While holding physician's office visits and marital status constant, for every $1 increase in centered family income, the number of chronic illnessess will increase by 0.00596. The expected physicians office visits for non-married individuals is 0.006964 more than for those who are married. Family income is expected to be 0.0311 USD less for nonmarried people than married people. For each increase in physicians office vist, family income is expected to decrease by 0.004273 USD. For individuals who are not married, with each increase of physician's office visits, family income is expected to increase 0.005458 USD more than for those who are married with each increase of physician's office vists. 
+
+This data does not pass linearity, homoskedasticity, or normality. 
+
+Using robust standard error, the coefficients did not change. The SE's increased with robust standard errors. 
+
+This model explains 7.292% of the variation in the outcome. 
+
+When running the model without interaction, one of the predictors (family income) is now significant. 
+
+##Bootstrapped Standard Errors of Linear Regression Model
+```{r}
+samp_distn<-replicate(5000, {
+ boot_dat<-boot_dat<-visits[sample(nrow(visits),replace=TRUE),]
+ fit3<-lm(numchron ~ faminc_c * maried*ofp_c, data=boot_dat)
+ coef(fit3)
+})
+
+samp_distn%>%t%>%as.data.frame%>%summarize_all(sd)
+
+
+```
+The bootstrapped standard errors are much more similar to the robust standard errors than the original, however they are slightly less. 
+##Logistic Regression
+```{r}
+#regression
+fit4<-glm(adldiff~ofp_c+faminc_c,data=visits,family=binomial(link="logit"))
+coeftest(fit4)
+exp(coef(fit4))
+
+#confusion matrix
+visits$prob<-predict(fit4,type="response") 
+table(predict=as.numeric(visits$prob>.5),truth=visits$adldiff)%>%addmargins
+
+#Accuracy
+(3492+9)/4406
+#Sensitivity (TPR)
+9/899
+#Specificity (TNR)
+3492/3507
+#Recall (PPV)
+9/24
+
+
+```
+```{r}
+#plot
+visits$logit<-predict(fit4) #get predicted log-odds
+visits$outcome<-factor(visits$adldiff,levels=c("0","1"))
+ggplot(visits,aes(logit, fill=outcome))+geom_density(alpha=.3)+
+  geom_vline(xintercept=0,lty=2)
+
+```
+```{r}
+#ROC and AUC
+ROCplot<-ggplot(visits)+geom_roc(aes(d=adldiff,m=prob), n.cuts=0)+
+ geom_segment(aes(x=0,xend=1,y=0,yend=1),lty=2)
+ROCplot
+calc_auc(ROCplot)
+```
+```{r}
+#function
+class_diag<-function(probs,truth){
+ tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+ acc=sum(diag(tab))/sum(tab)
+ sens=tab[2,2]/colSums(tab)[2]
+ spec=tab[1,1]/colSums(tab)[1]
+ ppv=tab[2,2]/rowSums(tab)[2]
+ if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+ #CALCULATE EXACT AUC
+ ord<-order(probs, decreasing=TRUE)
+ probs <- probs[ord]; truth <- truth[ord]
+ TPR=cumsum(truth)/max(1,sum(truth))
+ FPR=cumsum(!truth)/max(1,sum(!truth))
+ dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+ TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+ n <- length(TPR)
+ auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+ data.frame(acc,sens,spec,ppv,auc)
+} 
+
+#CV 10 fold
+set.seed(1234)
+k=10 
+visitscv<-visits[sample(nrow(visits)),] 
+folds<-cut(seq(1:nrow(visits)),breaks=k,labels=F) 
+diags<-NULL
+for(i in 1:k){
+
+ train<-visitscv[folds!=i,]
+ test<-visitscv[folds==i,]
+ truth<-test$adldiff
+
+ fit5<-glm(adldiff~ofp+faminc,data=train,family="binomial")
+ probs<-predict(fit5,newdata = test,type="response")
+
+ diags<-rbind(diags,class_diag(probs,truth))
+}
+apply(diags,2,mean) 
+```
+This logistic regression used the binary variable "adldiff" as the response variable and mean centered physician's office visits and family income as predictors. When an individual has a family income of 0 and has never visited a physician's office, their odds for having a condition limiting daily activity is 0.2801. While holding family income constant, odds of a condition limiting daily activity decreases 1.0358 with each increase in visit to a physician's office. While holding physician office visits constant, each $10,000 increase in family income decreases the odds of a condition limiting daily activity by 0.1359. All predictors have a p-value less than 0.05, indicating the model is significant. 
+
+This model is about 79.46% accurate, however it is important to note, it has an extremely low true positive rate and near perfect true negative rate. 
+
+The AUC is close to 0.5, indicating that we can't really predict individuals having a condition that limits their daily activity by family income and physicians office visits. 
+##Lasso Regression
+```{r}
+visitslasso <- visits%>%dplyr::select(-prob,-outcome,-X,-logit)
+y<-as.matrix(visitslasso$adldiff)
+fit6 <- glm(adldiff~.-1, data = visitslasso, family = "binomial")
+x<-model.matrix(fit6)
+x<-scale(x)
+cv<-cv.glmnet(x,y) 
+lasso1<-glmnet(x,y,lambda=cv$lambda.1se)
+coef(lasso1)
+```
+```{r}
+#CV 
+set.seed(1234)
+k=10 
+visitscv2<-visitslasso[sample(nrow(visitslasso)),] 
+folds<-cut(seq(1:nrow(visitslasso)),breaks=k,labels=F) 
+diags2<-NULL
+for(i in 1:k){
+ train2<-visitscv2[folds!=i,]
+ test2<-visitscv2[folds==i,]
+ truth2<-test2$adldiff
+ fit7<-glm(adldiff~emr+hosp+numchron+age+sex+maried+school+medicaid+hlth,data=train2,family="binomial")
+ probs2<-predict(fit7,newdata = test2,type="response")
+ diags2<-rbind(diags2,class_diag(probs2,truth2))
+}
+diags2%>%summarize_all(mean)
+
+
+```
+The LASSO regression shows that Emergency room visits, hospital visits, number of chronic illnesses, age, sex, marital status, years in school, medicaid coverage, and self reported health status to be the most important predictors of if an individual has a condition that limits their daily life. Running a 10 fold CV demonstrated a much higher AUC than from the model that only took into account family income and physician's office visits.

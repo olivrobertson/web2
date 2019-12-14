@@ -1,0 +1,4 @@
+"0","#ROC and AUC"
+"0","ROCplot<-ggplot(visits)+geom_roc(aes(d=adldiff,m=prob), n.cuts=0)+"
+"0"," geom_segment(aes(x=0,xend=1,y=0,yend=1),lty=2)"
+"0","ROCplot"

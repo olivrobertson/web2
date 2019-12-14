@@ -1,0 +1,209 @@
+---
+title: 'Project One: 2016 Candidate Endorsements and Song References'
+author: "Olivia Robertson omr288"
+date: "10/17/2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+```
+
+## Introduction
+
+The endorsements dataset is from https://projects.fivethirtyeight.com/2016-endorsement-primary/ and accounts for all of the endorsements of the 2016 primary election candidates based on a points system. Variables include the candidate, date, endorser, endorser's position, and points the endorsement earned the candidate. The hiphop data set is from https://datahub.io/five-thirty-eight/hip-hop-candidate-lyrics#resource-genius_hip_hop_lyrics that compiles hip hop songs that reference the 2016 primary candidates. Variables include candidate, song, artist, sentiment, theme, album release date, the line of lyrics referencing the candidate, and url to lyrics. 
+
+These datasets interested me because I wanted to see  if being referenced in a hip hop song had any correlation with endorsements for the 2016 primaries. The 2016 election was the first political event I was old enough to participate in and I remember it well. I expect to find that the more references in hiphop songs a candidate has, the more endorsements they will have. Likely if they are a big name, popular person they will be well established.
+
+## Tidying
+
+```{r}
+endorsement <- read.csv("endorsement.csv")
+endorsement %>% glimpse()
+hiphop <- read.csv("hiphop.csv")
+hiphop %>% glimpse()
+colnames(endorsement)[1] <- "Candidate"
+endorsement %>% na.omit() %>% glimpse()
+hh <- hiphop %>% na.omit() %>% glimpse()
+
+
+#already tidy so made untidy then pivoted from wide to long
+endorsement %>% pivot_wider(names_from="Candidate", values_from="Date") %>% glimpse()
+
+end <- endorsement %>% pivot_wider(names_from="Candidate", values_from="Date") %>%
+  pivot_longer(c("Hillary Clinton", "Bernie Sanders", "Joe Biden", 
+                 "Martin O'Malley", "Donald Trump", "Marco Rubio",
+                 "Ted Cruz", "John Kasich", "Chris Christie", "Jeb Bush",
+                 "Mike Huckabee", "Rand Paul", "Lindsey Graham", 
+                 "Carly Fiorina", "Ben Carson", "Scott Walker", 
+                 "Rick Perry", "Rick Santorum"), names_to="Candidate", 
+               values_to="Date") %>% na.omit() %>% glimpse()
+
+
+```
+NA's were removed from the hiphop dataset. Under the theme's variables there were about 79 rows that had a NA theme. Since these datasets were alreaady tidy, I untidied the endorsement dataset. I made it so that each candidate had their own column, with the date of endorsement as the values. I then retidied this from wide to long so that each date of endorsement had a row. 
+
+## Joining/Merging
+
+```{r}
+#creating number of endorsements variable
+comb <- end %>% group_by(Candidate) %>% summarize(Endorsements=n_distinct(Endorser))%>%
+  full_join(hh, by=c("Candidate"="candidate")) %>%
+  distinct() %>% na.omit() %>% glimpse()
+
+
+#getting rid of unnecessary columns
+comb2 <- comb %>% select(-idz,-url,-line) %>% glimpse()
+
+
+#creating number of song references variable
+joined <- hh %>% group_by(candidate) %>% summarize(song_references=n_distinct(song))%>%
+  full_join(comb2, by=c("candidate"="Candidate")) %>% 
+  na.omit() %>% glimpse()
+
+
+
+```
+First a new column was created that counted the number of endorseements each candidate had in 2016. A full join was done so that variables from both datasets could be compared. Unnecessaary columns idz, url to the song lyrics, and line of lyrics  were dropped for the analysis. Then a variable for number of song references by each candidate was created.
+
+
+
+##Wrangling
+```{r}
+
+#summary 1: mean number of song references
+joined %>% summarize(mean_song_references=mean(song_references))
+
+
+#summary 2: # of songs referencing Donald Trump
+joined %>% filter(candidate=="Donald Trump") %>% group_by(candidate) %>%
+  summarize(donald_song_references=n_distinct(song)) %>% 
+  glimpse()
+
+#summary 3 mean album release date
+joined %>% na.omit() %>% summarize(mean_album_date=mean(album_release_date))
+
+#summary 4 group by candidate, minimum endorsements
+joined %>% group_by(candidate) %>% summarize(least_endorsements=min(Endorsements)) %>%
+  arrange(least_endorsements)
+ 
+
+#summary 5 candidate referencing songs in 2015 and 2016
+joined %>% select(candidate, song, album_release_date) %>% 
+  arrange(album_release_date) %>% 
+  filter(album_release_date==2015 | album_release_date==2016) 
+
+joined %>% select(candidate, song, album_release_date) %>% 
+  arrange(album_release_date) %>%
+  filter(album_release_date==2015 | album_release_date==2016) %>%
+  group_by(album_release_date) %>%
+  summarize(count=n()) 
+
+
+#summary 6 number of times artists referenced candidates
+joined %>% select(artist, candidate) %>% group_by(artist) %>%
+  summarize(artist_cand_ref=n()) %>% arrange(artist) %>% 
+  glimpse()
+ 
+
+#summary 7 song references to endorsements proportion
+joined %>% mutate(proportion=song_references/Endorsements) %>%
+  summarize(proportion_sd=sd(proportion))
+
+#summary 8 distinct sentiments/how many positive, neutral, negative 
+joined %>% group_by(candidate,sentiment) %>% summarize(n=n()) %>% 
+  spread(sentiment,n, fill=0)
+
+
+#summary 9 group/arrange by song distinct themes/how many personal, political, etc. by sentiment
+joined %>% group_by(theme,sentiment) %>% summarize(n=n()) %>% spread(theme,n, fill=0)
+
+#summary 10 correlation number of songs per candidate and number of endorsements per candidate
+joined %>% select_if(is.numeric)%>%na.omit%>%cor
+
+
+
+
+
+
+```
+Basic summary statistics were taken from the joined data to find the mean number of song references for a candidate, the number of songs referencing Donald Trump who went on to win the 2016 election, the mean album release date, which actually is 8 years before the election took place, and finally the lowest number of candidate endorsements. Primaries began in 2015 when endorsements first were being made so a count of songs released in 2015 and 2016 were taken in order to find if there was any effect with endorsements.
+
+Then a count of how many times each artist referenced a candidate was made. Jay Z referenced 2016 candidates in 4 songs. A standard deviation of the proportion of song references to endorsements for candidates was caluclated to be 6.233. Out of song references, a spread was created by each candidate for the sentiment of the song they were referenced in which includes the options of negative, neutral, and positive. To follow that statistic, the theme of each sentiment was spread to cover hotel, money, personal, political, power, sexual, and The Apprentice. Finally a correlation of numeric variables was calculated. Unexpectedly, there is a negative correlation between endorsement and song references while album release date has no correlation to endorsements. 
+
+## Visualizing
+```{r}
+
+
+#plot 1: candidate, sentiment
+ggplot(joined, aes(candidate, Endorsements)) + geom_bar(stat="summary", fun.y="mean", fill="#faf5c3") + 
+  geom_point(aes(candidate, song_references, color=song_references)) +
+  scale_color_gradient(low="blue", high="orange") + 
+  ggtitle('Candidate Song References & Endorsements') +
+  xlab('Candidate') + ylab('Number Of Endorsements') + 
+  scale_y_continuous(lim=c(0,300),
+                     breaks=c(0,25,50,75,100,125,150,175,200,225,250,275,300))
+
+
+
+#plot 2: candidate, theme, sentiment, album release date
+ggplot(joined, aes(sentiment, album_release_date)) + geom_point(aes(color=theme), size=.5) +
+  facet_wrap(~candidate) + theme_dark() + 
+  ggtitle('Themes & Sentiments of Candidates Referenced In Songs by Year')+
+  xlab('Sentiment') + ylab('Album Release Date') + 
+  scale_y_continuous(lim=c(1989,2016),
+                     breaks=c(1989,1991,1993,1995,1997,1999,2001,
+                              2003,2005,2007,2009,2011,2013, 2015))
+
+
+```
+The first plot demonstrates how many endorsements and song references each candidate had up to the 2016 election.
+
+The second plot compares the sentiments and themes of candidates referenced in songs by the year the album was released. 
+
+## Dimensionality Reduction
+```{r}
+#covariance
+joined%>%select_if(is.numeric)%>%cov
+
+#scale
+joined_num<-joined%>%select_if(is.numeric)%>%scale %>% glimpse()
+joined_pca<-princomp(joined_num)
+names(joined_pca)
+summary(joined_pca, loadings=T)
+
+eigval<-joined_pca$sdev^2
+varprop=round(eigval/sum(eigval),2)
+ggplot()+geom_bar(aes(y=varprop,x=1:3),stat="identity")+xlab("")+geom_path(aes(y=varprop,x=1:3))+
+ geom_text(aes(x=1:3,y=varprop,label=round(varprop,2)),vjust=1,col="white",size=5)+
+ scale_y_continuous(breaks=seq(0,.6,.2),labels = scales::percent)+
+ scale_x_continuous(breaks=1:13)
+
+eigvalround<-round(cumsum(eigval)/sum(eigval),2) 
+eigvalround
+summary(joined_pca, loadings=T)
+
+joineddf<-data.frame(PC1=joined_pca$scores[,1], PC2=joined_pca$scores[,2])
+ggplot(joineddf,aes(PC1, PC2))+geom_point()
+
+
+
+
+
+
+
+
+```
+
+There is a high negative covariance between endorsements and song references meaning that they don't distinguish observations from each other. PC1 does not have much similarity. Album release date has very different magnitude from song references and endorsements, but has same sign as song references. Song references and endorsements have very similar magnitudes but opposite signs. PC2 is song references vs endorsements axis, where album release date is high scoring. PC3 is an axis for album release date where endorsements and song references have near magnitude and sign. 
+
+In the plot of loadings, each principal component appears to only be associated with one variable each. There are large angles between vectors implyng a low correlation. Therefore this study can conclude that there is not a significant correlation between song references on endorsements. 

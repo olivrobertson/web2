@@ -1,0 +1,21 @@
+---
+title: "about"
+author: "Olivia Robertson"
+date: "12/14/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Olivia Robertson
+
+I am a 20 year old Junior at The University of Texas at Austin pursuing a BSA in Biology and a minor in communication studies.
+
+I have participated in Freshmen Research Initiative for two years, working on an independent project to select for an aptamer. In addition I am a marketing intern for PrideBites in Austin.
+
+I am proffiecient in Microsoft Office suites and R studio. 
+
+Outside of class and internships, I enjoy attending concerts and reading books at local coffee shops.
+
+Find me on [LinkedIn](https://www.linkedin.com/in/olivrobertson/)

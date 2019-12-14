@@ -1,0 +1,4 @@
+"0",""
+"0","#summary 8 distinct sentiments/how many positive, neutral, negative "
+"0","joined %>% group_by(candidate,sentiment) %>% summarize(n=n()) %>% "
+"0","  spread(sentiment,n, fill=0)"

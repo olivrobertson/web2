@@ -1,0 +1,14 @@
+---
+title: BioInformatics in Python
+author: Olivia Robertson
+date: '2019-12-13'
+slug: bioinformatics-in-python
+categories:
+  - BioInformatics
+tags:
+  - Python
+  - BioInformatics
+description: ''
+---
+![](/blog/2019-12-13-bioinformatics-in-python_files/blast.jpg)
+Python is a powerful program to  biologists who work with DNA sequencing. Sequence alignment is one use to scientists. Global and local alignment can be done throuugh Smith Waterman algorithm and Needleman-Wunsch. In addition, BLAST, a popular method among gentists, can be performed in python.
