@@ -79,7 +79,59 @@
 <p><img src="/blog/2019-12-14-bioinformatics-in-python_files/blast.jpg" /></p>
 <p>Python is a powerful program to biologists who work with DNA sequencing. Sequence alignment is one use to scientists. Global and local alignment can be done through Smith Waterman algorithm and Needleman-Wunsch. In addition, BLAST, a popular method among gentists, can be performed in python.</p>
 <p>Subsequences of DNA are often reffered to as k-mers, which can be broken down and counted through a function. For this demonstration k will be equal to 3, to account for codons in a sequence.</p>
+<pre class="r"><code>library(reticulate)</code></pre>
+<pre class="python"><code>my_seq1 = &quot;ATCATCATG&quot;
+my_seq2 = &quot;CAGCCCAATCAGGCTCTACTGCCACTAAACTTACGCAGGATATATTTACGCCGACGTACT&quot;
+
+def kmercount(read, k):
+    counts = {}
+    countk = len(read) - k + 1
+    for i in range(countk):
+        kmer = read[i:i+k]
+        if kmer not in counts:
+            counts[kmer] = 0
+        counts[kmer] += 1
+    return counts
+
+kmercount(my_seq1,3)</code></pre>
+<pre><code>## {&#39;ATC&#39;: 2, &#39;TCA&#39;: 2, &#39;CAT&#39;: 2, &#39;ATG&#39;: 1}</code></pre>
 <p>Even final local alignments can be found by Smith Waterman algorithm.</p>
+<pre class="python"><code>import numpy as np
+
+# Use these values to calculate scores
+match_score = 2
+mismatch_score = -1
+gap_penalty = -1
+
+# Make a score matrix with these two sequences
+seq1 = &quot;CCAGT&quot;
+seq2 = &quot;ACAAGT&quot;
+
+
+def sw_fun(seq1,seq2,gap_penalty=-1, match_score=2, mismatch_score=-1):
+    m=len(seq1) #length of horizontal sequence
+    n=len(seq2) #length of vertical sequence
+    score=np.empty(shape=[n+1,m+1]) #array to hold scores
+   
+    for j in range(0, m + 1): score[0][j] = gap_penalty * j
+    for i in range(0, n + 1): score[i][0] = gap_penalty * i
+    
+    for i in range(1, n + 1): 
+        for j in range(1, m + 1):
+            insert = max(score[i - 1][j] + gap_penalty,0) 
+            delete = max(score[i][j - 1] + gap_penalty ,0)
+            match = max(score[i - 1][j - 1] + match_score if seq1[j-1]==seq2[i-1] else mismatch_score , 0)
+            score[i][j] = max(match, delete, insert) 
+    return score
+
+sw_fun(seq1,seq2,gap_penalty,match_score,mismatch_score)</code></pre>
+<pre><code>## array([[ 0., -1., -2., -3., -4., -5.],
+##        [-1.,  0.,  0.,  0.,  0.,  0.],
+##        [-2.,  1.,  2.,  1.,  0.,  0.],
+##        [-3.,  0.,  1.,  4.,  3.,  2.],
+##        [-4.,  0.,  0.,  3.,  2.,  1.],
+##        [-5.,  0.,  0.,  2.,  5.,  4.],
+##        [-6.,  0.,  0.,  1.,  4.,  7.]])</code></pre>
 
               <hr>
               <div class="related-posts">

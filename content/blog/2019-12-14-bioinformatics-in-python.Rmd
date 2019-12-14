@@ -17,5 +17,57 @@ Python is a powerful program to  biologists who work with DNA sequencing. Sequen
 
 
 Subsequences of DNA are often reffered to as k-mers, which can be broken down and counted through a function. For this demonstration k will be equal to 3, to account for codons in a sequence.
+```{r}
+library(reticulate)
+```
+```{python}
+my_seq1 = "ATCATCATG"
+my_seq2 = "CAGCCCAATCAGGCTCTACTGCCACTAAACTTACGCAGGATATATTTACGCCGACGTACT"
+
+def kmercount(read, k):
+    counts = {}
+    countk = len(read) - k + 1
+    for i in range(countk):
+        kmer = read[i:i+k]
+        if kmer not in counts:
+            counts[kmer] = 0
+        counts[kmer] += 1
+    return counts
+
+kmercount(my_seq1,3)
+```
+
 
 Even final local alignments can be found by Smith Waterman algorithm.
+```{python}
+import numpy as np
+
+# Use these values to calculate scores
+match_score = 2
+mismatch_score = -1
+gap_penalty = -1
+
+# Make a score matrix with these two sequences
+seq1 = "CCAGT"
+seq2 = "ACAAGT"
+
+
+def sw_fun(seq1,seq2,gap_penalty=-1, match_score=2, mismatch_score=-1):
+    m=len(seq1) #length of horizontal sequence
+    n=len(seq2) #length of vertical sequence
+    score=np.empty(shape=[n+1,m+1]) #array to hold scores
+   
+    for j in range(0, m + 1): score[0][j] = gap_penalty * j
+    for i in range(0, n + 1): score[i][0] = gap_penalty * i
+    
+    for i in range(1, n + 1): 
+        for j in range(1, m + 1):
+            insert = max(score[i - 1][j] + gap_penalty,0) 
+            delete = max(score[i][j - 1] + gap_penalty ,0)
+            match = max(score[i - 1][j - 1] + match_score if seq1[j-1]==seq2[i-1] else mismatch_score , 0)
+            score[i][j] = max(match, delete, insert) 
+    return score
+
+sw_fun(seq1,seq2,gap_penalty,match_score,mismatch_score)
+```
+
