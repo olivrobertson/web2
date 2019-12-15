@@ -43,12 +43,12 @@ Even final local alignments can be found by Smith Waterman algorithm.
 ```{python}
 import numpy as np
 
-# Use these values to calculate scores
+
 match_score = 2
 mismatch_score = -1
 gap_penalty = -1
 
-# Make a score matrix with these two sequences
+
 seq1 = "CCAGT"
 seq2 = "ACAAGT"
 
