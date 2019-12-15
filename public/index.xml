@@ -17,7 +17,7 @@
       <pubDate>Sat, 14 Dec 2019 00:00:00 +0000</pubDate>
       
       <guid>/blog/bioinformatics-in-python/</guid>
-      <description>Python is a powerful program to biologists who work with DNA sequencing. Sequence alignment is one use to scientists. Global and local alignment can be done through Smith Waterman algorithm and Needleman-Wunsch. In addition, BLAST, a popular method among gentists, can be performed in python.
+      <description>Python is a powerful program to biologists who work with DNA sequencing. Sequence alignment is one use for researchers. Global and local alignment can be done with Smith Waterman and Needleman-Wunsch algorithms. In addition, BLAST, a popular method among gentists, can be performed in python.
 Subsequences of DNA are often reffered to as k-mers, which can be broken down and counted through a function. For this demonstration k will be equal to 3, to account for codons in a sequence.</description>
     </item>
     
@@ -48,10 +48,7 @@ Subsequences of DNA are often reffered to as k-mers, which can be broken down an
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/about/</guid>
-      <description>Olivia RobertsonI am a 20 year old Junior at The University of Texas at Austin pursuing a BSA in Biology and a minor in communication studies.
-I have participated in Freshmen Research Initiative for two years, working on an independent project to select for an aptamer. In addition I am a marketing intern for PrideBites in Austin.
-I am proffiecient in Microsoft Office suites and R studio.
-Outside of class and internships, I enjoy attending concerts and reading books at local coffee shops.</description>
+      <description>About MeI am a 20 year old Junior at The University of Texas at Austin pursuing a BSA in Biology and a minor in communication studies.I have participated in Freshmen Research Initiative for two years, working on an independent project to select for an aptamer in hopes to relieve ALS. In addition, I am a marketing intern for PrideBites in Austin.My skills include proffieciency in Microsoft Office suites and R studio.</description>
     </item>
     
     <item>
