@@ -34,7 +34,8 @@ def kmercount(read, k):
         counts[kmer] += 1
     return counts
 
-kmercount(my_seq1,3)
+print(kmercount(my_seq1,3))
+print(kmercount(my_seq2,3))
 ```
 
 
