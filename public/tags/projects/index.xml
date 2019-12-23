@@ -6,7 +6,7 @@
     <description>Recent content in projects on Olivia Robertson</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <lastBuildDate>Sun, 02 Oct 2016 22:55:05 -0400</lastBuildDate>
+    <lastBuildDate>Mon, 23 Dec 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/projects/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,12 +14,13 @@
     <item>
       <title>Project</title>
       <link>/projects/</link>
-      <pubDate>Sun, 02 Oct 2016 22:55:05 -0400</pubDate>
+      <pubDate>Mon, 23 Dec 2019 00:00:00 +0000</pubDate>
       
       <guid>/projects/</guid>
       <description>Projects Here are some projects I have been working on at The University of Texas:
   Data Wrangling and Exploratory Analysis of 2016 Presidential Candidates and Hip Hop References
   Modeling, Inference, and Prediction of Physician&#39;s Office Visits
+  Aptamer Selection Against Amytorphic Lateral Sclerosis Related Mutant SOD-1 for Targeted Delivery of Functional Proteins
   </description>
     </item>
     
