@@ -15,7 +15,7 @@ Here are some projects I have been working on at The University of Texas:
 
 - [Modeling, Inference, and Prediction of Physician's Office Visits](/Project2/)
 
-- [Aptamer Selection Against Amytorphic Lateral Sclerosis Related Mutant SOD-1 for Targeted Delivery of Functional Proteins](C:/Users/orobe/Documents/web2/static/aptamer.pdf)
+- [Aptamer Selection Against Amytorphic Lateral Sclerosis Related Mutant SOD-1 for Targeted Delivery of Functional Proteins](/web2/static/aptamer.pdf)
 
 
 
